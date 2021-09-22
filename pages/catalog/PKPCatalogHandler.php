@@ -52,18 +52,41 @@ class PKPCatalogHandler extends Handler
      */
     public function category($args, $request)
     {
-        $page = isset($args[1]) ? (int) $args[1] : 1;
         $templateMgr = TemplateManager::getManager($request);
         $context = $request->getContext();
+        $categoryPath = empty($args) ? '' : array_shift($args);
+        $subPath = empty($args) ? '' : array_shift($args);
+        $page = 0;
+
+        if ($subPath !== 'page') {
+            $subCategoryPath = $subPath;
+        }
+        if ($subPath === 'page') {
+            $page = (int) array_shift($args);
+        }
 
         // Get the category
-        $category = Repo::category()->getMany(
+        $parentCategory = Repo::category()->getMany(
             Repo::category()->getCollector()
-                ->filterByPaths([$args[0]])
+                ->filterByPaths([$categoryPath])
                 ->filterByContextIds([$context->getId()])
         )->first();
-        if (!$category) {
-            $this->getDispatcher()->handle404();
+
+        // If subcategory exists, fetch that as well
+        if ($subCategoryPath){
+            $category = Repo::category()->getMany(
+                Repo::category()->getCollector()
+                    ->filterByPaths([$subCategoryPath])
+                    ->filterByContextIds([$context->getId()])
+            )->first();
+            if (!$category || !$parentCategory || $category->getParentId() != $parentCategory->getId()) {
+                $this->getDispatcher()->handle404();
+            }
+        } else {
+            $category = $parentCategory;
+            if (!$category) {
+                $this->getDispatcher()->handle404();
+            }
         }
 
         $this->setupTemplate($request);

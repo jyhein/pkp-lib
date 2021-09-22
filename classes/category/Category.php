@@ -13,6 +13,8 @@
 
 namespace PKP\category;
 
+use PKP\db\DAORegistry;
+
 class Category extends \PKP\core\DataObject
 {
     /**
@@ -159,6 +161,21 @@ class Category extends \PKP\core\DataObject
     public function setSortOption(?string $sortOption)
     {
         return $this->setData('sortOption', $sortOption);
+    }
+
+    /**
+     * Get parent category path.
+     *
+     * @return string
+     */
+    public function getParentPath()
+    {
+        if ($this->getParentId()) {
+            $categoryDao = DAORegistry::getDAO('CategoryDAO'); /** @var CategoryDAO $categoryDao */
+            $parentCategory = $categoryDao->getById($this->getParentId());
+            return $parentCategory->getPath();
+        }
+        return false;
     }
 }
 
