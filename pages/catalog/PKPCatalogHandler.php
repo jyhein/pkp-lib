@@ -96,10 +96,23 @@ class PKPCatalogHandler extends Handler
         $count = $context->getData('itemsPerPage') ? $context->getData('itemsPerPage') : Config::getVar('interface', 'items_per_page');
         $offset = $page > 1 ? ($page - 1) * $count : 0;
 
+        // Provide the parent category and a list of subcategories
+        $parentCategory = $category->getParentId() ? Repo::category()->get($category->getParentId()) : null;
+        $subcategories = Repo::category()->getMany(
+            Repo::category()->getCollector()
+                ->filterByParentIds([$category->getId()])
+        );
+
+        // Get category id's for parent and subcategories
+        $categoryIds[] = $category->getId();
+        foreach (iterator_to_array($subcategories) as $subcategory) {
+            $categoryIds[] = $subcategory->getId();
+        }
+
         $collector = Repo::submission()
             ->getCollector()
             ->filterByContextIds([$context->getId()])
-            ->filterByCategoryIds([$category->getId()])
+            ->filterByCategoryIds($categoryIds)
             ->filterByStatus([Submission::STATUS_PUBLISHED])
             ->orderBy($orderBy, $orderDir === SORT_DIRECTION_ASC ? Collector::ORDER_DIR_ASC : Collector::ORDER_DIR_DESC);
 
@@ -110,13 +123,6 @@ class PKPCatalogHandler extends Handler
 
         $total = Repo::submission()->getCount($collector);
         $submissions = Repo::submission()->getMany($collector->limit($count)->offset($offset));
-
-        // Provide the parent category and a list of subcategories
-        $parentCategory = $category->getParentId() ? Repo::category()->get($category->getParentId()) : null;
-        $subcategories = Repo::category()->getMany(
-            Repo::category()->getCollector()
-                ->filterByParentIds([$category->getId()])
-        );
 
         $this->_setupPaginationTemplate($request, count($submissions), $page, $count, $offset, $total);
 
