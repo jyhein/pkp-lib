@@ -13,6 +13,7 @@
 
 namespace PKP\category;
 
+use APP\facades\Repo;
 use PKP\db\DAORegistry;
 
 class Category extends \PKP\core\DataObject
@@ -171,8 +172,7 @@ class Category extends \PKP\core\DataObject
     public function getParentPath()
     {
         if ($this->getParentId()) {
-            $categoryDao = DAORegistry::getDAO('CategoryDAO'); /** @var CategoryDAO $categoryDao */
-            $parentCategory = $categoryDao->getById($this->getParentId());
+            $parentCategory = Repo::category()->get($this->getParentId());
             return $parentCategory->getPath();
         }
         return false;

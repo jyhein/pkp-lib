@@ -162,6 +162,27 @@ class PKPSection extends \PKP\core\DataObject
     {
         return $this->setData('policy', $policy, $locale);
     }
+
+    /**
+     * Get section url path.
+     *
+     * @return string
+     */
+    public function getUrlPath()
+    {
+        return $this->getData('urlPath');
+    }
+
+    /**
+     * Set section url path.
+     *
+     * @param $urlPath string
+     */
+    public function setUrlPath($urlPath)
+    {
+        return $this->setData('urlPath', $urlPath);
+    }
+
 }
 
 if (!PKP_STRICT_MODE) {
