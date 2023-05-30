@@ -165,7 +165,6 @@ abstract class PKPAuthorDashboardHandler extends Handler
             $submissionContext = Services::get('context')->get($submission->getContextId());
         }
 
-        $contextUserGroups = Repo::userGroup()->getByRoleIds([Role::ROLE_ID_AUTHOR], $submission->getData('contextId'));
         $genreDao = DAORegistry::getDAO('GenreDAO'); /** @var GenreDAO $genreDao */
         $contextGenres = $genreDao->getEnabledByContextId($submission->getData('contextId'))->toArray();
         $workflowStages = WorkflowStageDAO::getWorkflowStageKeysAndPaths();
@@ -265,7 +264,7 @@ abstract class PKPAuthorDashboardHandler extends Handler
         })->values();
 
         // Get full details of the working publication and the current publication
-        $mapper = Repo::publication()->getSchemaMap($submission, $contextUserGroups, $contextGenres);
+        $mapper = Repo::publication()->getSchemaMap($submission, $contextGenres);
         $workingPublicationProps = $mapper->map($submission->getLatestPublication());
         $currentPublicationProps = $submission->getLatestPublication()->getId() === $submission->getCurrentPublication()->getId()
             ? $workingPublicationProps
@@ -279,8 +278,12 @@ abstract class PKPAuthorDashboardHandler extends Handler
         }
 
         $authorItems = [];
+        $contributorRoleTerms = \PKP\components\forms\publication\ContributorForm::getContributorRoleTerms();
         foreach ($latestPublication->getData('authors') as $contributor) {
-            $authorItems[] = Repo::author()->getSchemaMap()->map($contributor);
+            $authorItem = Repo::author()->getSchemaMap()->map($contributor);
+            $authorItem['contributorRoles'] = array_map(fn ($uri) => $contributorRoleTerms[$uri], $authorItem['contributorRoles']);
+            $authorItems[] = $authorItem;
+
         }
 
         $contributorsListPanel = $this->getContributorsListPanel(
@@ -299,6 +302,7 @@ abstract class PKPAuthorDashboardHandler extends Handler
         }
 
         $state = [
+            'authorItems' => $authorItems,
             'canEditPublication' => $canEditPublication,
             'components' => [
                 FORM_TITLE_ABSTRACT => $titleAbstractForm->getConfig(),

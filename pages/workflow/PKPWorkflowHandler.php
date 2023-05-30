@@ -157,7 +157,6 @@ abstract class PKPWorkflowHandler extends Handler
         $result = Repo::userGroup()->getCollector()
             ->filterByContextIds([$submission->getData('contextId')])
             ->getMany();
-        $authorUserGroups = Repo::userGroup()->getByRoleIds([Role::ROLE_ID_AUTHOR], $submission->getData('contextId'));
         $workflowUserGroups = Repo::userGroup()->getByRoleIds($editorialWorkflowRoles, $submission->getData('contextId'));
 
         // Publication tab
@@ -270,12 +269,15 @@ abstract class PKPWorkflowHandler extends Handler
         );
 
         $citationsForm = new PKPCitationsForm($latestPublicationApiUrl, $latestPublication);
-        $publicationLicenseForm = new PKPPublicationLicenseForm($latestPublicationApiUrl, $locales, $latestPublication, $submissionContext, $authorUserGroups);
+        $publicationLicenseForm = new PKPPublicationLicenseForm($latestPublicationApiUrl, $locales, $latestPublication, $submissionContext);
         $titleAbstractForm = $this->getTitleAbstractForm($latestPublicationApiUrl, $locales, $latestPublication, $submissionContext);
 
         $authorItems = [];
+        $contributorRoleTerms = \PKP\components\forms\publication\ContributorForm::getContributorRoleTerms();
         foreach ($latestPublication->getData('authors') as $contributor) {
-            $authorItems[] = Repo::author()->getSchemaMap()->map($contributor);
+            $authorItem = Repo::author()->getSchemaMap()->map($contributor);
+            $authorItem['contributorRoles'] = array_map(fn ($uri) => $contributorRoleTerms[$uri], $authorItem['contributorRoles']);
+            $authorItems[] = $authorItem;
         }
 
         $contributorsListPanel = $this->getContributorsListPanel(
@@ -317,7 +319,7 @@ abstract class PKPWorkflowHandler extends Handler
         })->values();
 
         // Get full details of the working publication and the current publication
-        $mapper = Repo::publication()->getSchemaMap($submission, $authorUserGroups, $genres);
+        $mapper = Repo::publication()->getSchemaMap($submission, $genres);
         $workingPublicationProps = $mapper->map($submission->getLatestPublication());
         $currentPublicationProps = $submission->getLatestPublication()->getId() === $submission->getCurrentPublication()->getId()
             ? $workingPublicationProps
@@ -325,6 +327,7 @@ abstract class PKPWorkflowHandler extends Handler
 
         $state = [
             'activityLogLabel' => __('submission.list.infoCenter'),
+            'authorItems' => $authorItems,
             'canAccessPublication' => $canAccessPublication,
             'canEditPublication' => $canEditPublication,
             'components' => [

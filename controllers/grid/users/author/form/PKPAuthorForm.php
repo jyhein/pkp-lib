@@ -125,6 +125,7 @@ class PKPAuthorForm extends Form
         $author = $this->getAuthor();
 
         if ($author) {
+            $contributorRoleTerms = \PKP\components\forms\publication\ContributorForm::getContributorRoleTerms();
             $this->_data = [
                 'authorId' => $author->getId(),
                 'givenName' => $author->getGivenName(null),
@@ -139,6 +140,7 @@ class PKPAuthorForm extends Form
                 'biography' => $author->getBiography(null),
                 'primaryContact' => $this->getPublication()->getData('primaryContactId') === $author->getId(),
                 'includeInBrowse' => $author->getIncludeInBrowse(),
+                'contributorRoles' => array_map(fn ($uri) => $contributorRoleTerms[$uri], $author->getData('contributorRoles') ?? []),
             ];
         } else {
             // assume authors should be listed unless otherwise specified.
@@ -155,7 +157,6 @@ class PKPAuthorForm extends Form
      */
     public function fetch($request, $template = null, $display = false)
     {
-        $authorUserGroups = Repo::userGroup()->getByRoleIds([Role::ROLE_ID_AUTHOR], $request->getContext()->getId());
         $publication = $this->getPublication();
         $countries = [];
         foreach (Locale::getCountries() as $country) {
@@ -167,7 +168,6 @@ class PKPAuthorForm extends Form
             'submissionId' => $publication->getData('submissionId'),
             'publicationId' => $publication->getId(),
             'countries' => $countries,
-            'authorUserGroups' => $authorUserGroups,
         ]);
 
         return parent::fetch($request, $template, $display);
@@ -194,6 +194,7 @@ class PKPAuthorForm extends Form
             'biography',
             'primaryContact',
             'includeInBrowse',
+            'contributorRoles',
         ]);
     }
 
@@ -232,6 +233,7 @@ class PKPAuthorForm extends Form
         $author->setUserGroupId($this->getData('userGroupId'));
         $author->setBiography($this->getData('biography'), null); // localized
         $author->setIncludeInBrowse(($this->getData('includeInBrowse') ? true : false));
+        $author->setData('contributorRoles', $this->getData('contributorRoles'));
 
         // in order to be able to use the hook
         parent::execute(...$functionParams);

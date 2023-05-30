@@ -53,6 +53,7 @@
                     class="submissionWizard__reviewPanel__list__name"
                 >
                     {{ getAuthorName(author) }}
+                    <badge v-for="uri in author.contributorRoles" :key="uri">{{ contributorRoleTerms[uri] }}</badge>
                 </span>
                 <span
                     class="submissionWizard__reviewPanel__list__actions"
@@ -63,7 +64,6 @@
                     >
                         {translate key="author.users.contributor.principalContact"}
                     </badge>
-                    <badge>{{ localize(author.userGroupName) }}</badge>
                 </span>
             </li>
         </ul>

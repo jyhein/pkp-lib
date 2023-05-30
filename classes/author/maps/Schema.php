@@ -55,6 +55,7 @@ class Schema extends \PKP\core\maps\Schema
      */
     public function summarize(Author $item): array
     {
+        $__aa = $this->getSummaryProps();
         return $this->mapByProperties($this->getSummaryProps(), $item);
     }
 
@@ -99,6 +100,9 @@ class Schema extends \PKP\core\maps\Schema
                     break;
                 case 'fullName':
                     $output[$prop] = $item->getFullName();
+                    break;
+                case 'creditRoles' || 'contributorRoles':
+                    $output[$prop] = $item->getData($prop) ?? [];
                     break;
                 default:
                     $output[$prop] = $item->getData($prop);

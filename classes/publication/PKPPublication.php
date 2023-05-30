@@ -208,12 +208,12 @@ class PKPPublication extends \PKP\core\DataObject
      *
      * Eg - Daniel Barnes, Carlo Corino (Author); Alan Mwandenga (Translator)
      *
-     * @param \Traversable<UserGroup> $userGroups List of UserGroup objects
+     * @param array $contributorRoleTerms Assoc array of contributor roles; URI => Term
      * @param bool $includeInBrowseOnly true if only the includeInBrowse Authors will be contained
      *
      * @return string
      */
-    public function getAuthorString(\Traversable $userGroups, $includeInBrowseOnly = false)
+    public function getAuthorString(array $contributorRoleTerms, $includeInBrowseOnly = false)
     {
         $authors = $this->getData('authors');
 
@@ -227,41 +227,11 @@ class PKPPublication extends \PKP\core\DataObject
             });
         }
 
-        $str = '';
-        $lastUserGroupId = null;
-        foreach ($authors as $author) {
-            if (!empty($str)) {
-                if ($lastUserGroupId != $author->getData('userGroupId')) {
-                    foreach ($userGroups as $userGroup) {
-                        if ($lastUserGroupId === $userGroup->getId()) {
-                            if ($userGroup->getData('showTitle')) {
-                                $str .= ' (' . $userGroup->getLocalizedData('name') . ')';
-                            }
-                            break;
-                        }
-                    }
-                    $str .= __('common.semicolonListSeparator');
-                } else {
-                    $str .= __('common.commaListSeparator');
-                }
-            }
-            $str .= $author->getFullName();
-            $lastUserGroupId = $author->getUserGroupId();
-        }
-
-        // If there needs to be a trailing user group title, add it
-        if (isset($author)) {
-            foreach ($userGroups as $userGroup) {
-                if ($author->getData('userGroupId') === $userGroup->getId()) {
-                    if ($userGroup->getData('showTitle')) {
-                        $str .= ' (' . $userGroup->getLocalizedData('name') . ')';
-                    }
-                    break;
-                }
-            }
-        }
-
-        return $str;
+        $authorsRoles = $authors->mapWithKeys(fn ($author) => [$author->getFullName() => $author->getData('contributorRoles') ?? []]);
+        return collect($contributorRoleTerms)->mapWithKeys(fn ($term, $uri) => [$term => $authorsRoles->filter(fn ($auris, $name) => in_array($uri, $auris))->keys()->all()])
+            ->filter()
+            ->map(fn ($names, $term) => implode(__('common.commaListSeparator'), $names) . " ({$term})")
+            ->implode(__('common.semicolonListSeparator'));
     }
 
     /**

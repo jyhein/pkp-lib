@@ -23,7 +23,6 @@ use APP\publication\DAO;
 use APP\publication\Publication;
 use APP\submission\Submission;
 use Illuminate\Support\Enumerable;
-use Illuminate\Support\LazyCollection;
 use PKP\context\Context;
 use PKP\core\Core;
 use PKP\db\DAORegistry;
@@ -92,16 +91,15 @@ abstract class Repository
      * Get an instance of the map class for mapping
      * publications to their schema
      *
-     * @param LazyCollection<int,UserGroup> $userGroups
+     * @param Submission $submission
      * @param Genre[] $genres
      */
-    public function getSchemaMap(Submission $submission, LazyCollection $userGroups, array $genres): maps\Schema
+    public function getSchemaMap(Submission $submission, array $genres): maps\Schema
     {
         return app('maps')->withExtensions(
             $this->schemaMap,
             [
                 'submission' => $submission,
-                'userGroups' => $userGroups,
                 'genres' => $genres,
             ]
         );

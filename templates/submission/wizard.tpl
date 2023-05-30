@@ -92,6 +92,7 @@
                             v-else-if="section.type === 'contributors'"
                             v-bind="components.contributors"
                             :items="publication.authors"
+                            :contributorRoleTerms=contributorRoleTerms
                             :publication="publication"
                             @updated:contributors="setContributors"
                             @updated:publication="setPublication"

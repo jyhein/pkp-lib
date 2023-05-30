@@ -16,8 +16,6 @@
 namespace PKP\components\forms\publication;
 
 use APP\core\Application;
-use APP\publication\Publication;
-use Illuminate\Support\LazyCollection;
 use PKP\components\forms\FieldText;
 use PKP\components\forms\FormComponent;
 
@@ -37,17 +35,16 @@ class PKPPublicationLicenseForm extends FormComponent
      * @param string $action URL to submit the form to
      * @param array $locales Supported locales
      * @param Publication $publication The publication to change settings for
-     * @param \PKP\context\Context $context The publication's context
-     * @param LazyCollection<int,\PKP\userGroup\UserGroup> $userGroups User groups in this context
+     * @param Context $context The publication's context
      */
-    public function __construct($action, $locales, $publication, $context, LazyCollection $userGroups)
+    public function __construct($action, $locales, $publication, $context)
     {
         $this->action = $action;
         $this->locales = $locales;
 
         // Get the copyright that will be set on publication based on context settings
         if ($context->getData('copyrightHolderType') === 'author') {
-            $copyright = $publication->getAuthorString($userGroups);
+            $copyright = $publication->getAuthorString(\PKP\components\forms\publication\ContributorForm::getContributorRoleTerms());
         } elseif ($context->getData('copyrightHolderType') === 'other') {
             $copyright = $context->getLocalizedData('copyrightHolderOther');
         } else {

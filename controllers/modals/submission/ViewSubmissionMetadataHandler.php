@@ -55,11 +55,7 @@ class ViewSubmissionMetadataHandler extends handler
         $publication = $submission->getCurrentPublication();
 
         if ($reviewAssignment->getReviewMethod() != ReviewAssignment::SUBMISSION_REVIEW_METHOD_DOUBLEANONYMOUS) { /* ReviewAssignment::SUBMISSION_REVIEW_METHOD_ANONYMOUS or _OPEN */
-            $userGroups = Repo::userGroup()->getCollector()
-                ->filterByContextIds([$context->getId()])
-                ->getMany();
-
-            $templateMgr->assign('authors', $publication->getAuthorString($userGroups));
+            $templateMgr->assign('authors', $publication->getAuthorString(\PKP\components\forms\publication\ContributorForm::getContributorRoleTerms()));
 
             if ($publication->getLocalizedData('dataAvailability')) {
                 $templateMgr->assign('dataAvailability', $publication->getLocalizedData('dataAvailability'));

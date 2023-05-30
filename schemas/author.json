@@ -2,6 +2,7 @@
 	"title": "Author",
 	"description": "An author of a publication.",
 	"required": [
+		"contributorRoles",
 		"email",
 		"givenName",
 		"publicationId",
@@ -25,6 +26,20 @@
 				"nullable"
 			]
 		},
+		"contributorRoles": {
+			"type": "array",
+			"description": "The names of this contributor's roles in the publication, such as 'Author' or 'Translator' in URI format.",
+			"items": {
+				"type": "string",
+				"validation": [
+					"url"
+				]
+            },
+			"validation": [
+				"min:1"
+			],
+			"apiSummary": true
+		},
 		"country": {
 			"type": "string",
 			"description": "The author's country in a two-letter code (ISO 3166-1). See [all codes](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements).",
@@ -35,6 +50,19 @@
 				"regex:/^[A-Z]{2}$/"
 			]
 		},
+		"creditRoles": {
+			"type": "array",
+			"description": "CRediT Roles",
+			"items": {
+				"type": "string",
+				"validation": [
+					"url"
+				]
+            },
+			"validation": [
+				"nullable"
+			]
+        },
 		"email": {
 			"type": "string",
 			"apiSummary": true,

@@ -15,6 +15,8 @@
 
 namespace PKP\components\forms\publication;
 
+use \DOMDocument;
+
 use APP\facades\Repo;
 use APP\submission\Submission;
 use PKP\components\forms\FieldOptions;
@@ -107,16 +109,16 @@ class ContributorForm extends FormComponent
                 'isMultilingual' => true,
             ]));
 
-        if ($authorUserGroupsOptions->count() > 1) {
-            $this->addField(new FieldOptions('userGroupId', [
-                'label' => __('submission.submit.contributorRole'),
-                'type' => 'radio',
-                'value' => $authorUserGroupsOptions->first()['value'],
-                'options' => $authorUserGroupsOptions->values(),
-            ]));
-        } else {
-            $this->addHiddenField('userGroupId', $authorUserGroupsOptions->first()['value']);
-        }
+        $this->addHiddenField('userGroupId', $authorUserGroupsOptions->first()['value']);
+
+        $this->addField(new FieldOptions('contributorRoles', [
+            'type' => 'checkbox',
+            'label' => __('submission.submit.contributorRoles.label'),
+            'description' => __('submission.submit.contributorRoles.description'),
+            'options' => $this->getTypeRolesOptions('contributor-roles'),
+            'value' => [],
+            'isRequired' => true,
+        ]));
 
         $this->addField(new FieldOptions('includeInBrowse', [
             'label' => __('submission.submit.includeInBrowse.title'),
@@ -126,5 +128,66 @@ class ContributorForm extends FormComponent
                 ['value' => true, 'label' => __('submission.submit.includeInBrowse')],
             ]
         ]));
+
+        $this->addField(new FieldOptions('creditRoles', [
+            'type' => 'checkbox',
+            'label' => __('submission.submit.creditRoles.label'),
+            'description' => __('submission.submit.creditRoles.description'),
+            'options' => $this->getTypeRolesOptions('credit-roles'),
+            'value' => [],
+        ]));
+    }
+
+    public static function getContributorRoleTerms($locale = null) {
+        return self::getTypeRoleTerms('contributor-roles', $locale);
+    }
+
+    public static function getCreditRoleTerms($locale = null) {
+        return self::getTypeRoleTerms('credit-roles', $locale);
+    }
+
+    /**
+     * Get roles to the contributor form
+     * @param $locale The locale for which to fetch the data
+     */
+    protected function getTypeRolesOptions($typeRoles, $locale = null): array
+    {
+        $roles = [];
+        foreach (self::getTypeRoleTerms($typeRoles, $locale) as $uri => $label) {
+            $roles[] = ['value' => $uri, 'label' => $label];
+        }
+        return $roles;
+    }
+
+    /**
+     * Type of roles in an associative URI => Term array
+     * @param $typeRoles The type of roles (the name of the xml file), e.g. contributor-roles, credit-roles
+     * @param $locale The locale for which to fetch the data (default primary locale; en if not available)
+     */
+    protected static function getTypeRoleTerms($typeRoles, $locale = null): array
+    {
+        $doc = new DOMDocument();
+
+        if (!$locale) {
+            $locale = \PKP\facades\Locale::getPrimaryLocale();
+        }
+
+        if (!\PKP\facades\Locale::isLocaleValid($locale)) {
+            $locale = 'en';
+        }
+
+        if (file_exists($filename = "lib/pkp/xml/schema/$typeRoles-{$locale}.xml")) {
+            $doc->load($filename);
+        } else {
+            $doc->load("lib/pkp/xml/schema/{$typeRoles}.xml");
+        }
+
+        $roles = [];
+        foreach ($doc->getElementsByTagName($typeRoles) as $troles) {
+            foreach ($troles->getElementsByTagName('item') as $item) {
+                $roles[$item->getAttribute('uri')] = $item->getAttribute('term');
+            }
+        }
+        return $roles;
     }
 }

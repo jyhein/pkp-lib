@@ -39,17 +39,13 @@ class Schema extends \PKP\core\maps\Schema
     /** @var bool */
     public $anonymize;
 
-    /** @var LazyCollection UserGroup The user groups for this context. */
-    public $userGroups;
-
     /** @var Genre[] The file genres for this context. */
     public array $genres;
 
-    public function __construct(Submission $submission, LazyCollection $userGroups, array $genres, Request $request, Context $context, PKPSchemaService $schemaService)
+    public function __construct(Submission $submission, array $genres, Request $request, Context $context, PKPSchemaService $schemaService)
     {
         parent::__construct($request, $context, $schemaService);
         $this->submission = $submission;
-        $this->userGroups = $userGroups;
         $this->genres = $genres;
     }
 
@@ -107,6 +103,8 @@ class Schema extends \PKP\core\maps\Schema
         $this->anonymize = $anonymize;
 
         $output = [];
+        $__aaa = $publication->getData('authors')->toArray();
+        $contributorRoleTerms = \PKP\components\forms\publication\ContributorForm::getContributorRoleTerms();
 
         foreach ($props as $prop) {
             switch ($prop) {
@@ -124,10 +122,10 @@ class Schema extends \PKP\core\maps\Schema
                     }
                     break;
                 case 'authorsString':
-                    $output[$prop] = $this->anonymize ? '' : $publication->getAuthorString($this->userGroups);
+                    $output[$prop] = $this->anonymize ? '' : $publication->getAuthorString($contributorRoleTerms);
                     break;
                 case 'authorsStringIncludeInBrowse':
-                    $output[$prop] = $this->anonymize ? '' : $publication->getAuthorString($this->userGroups, true);
+                    $output[$prop] = $this->anonymize ? '' : $publication->getAuthorString($contributorRoleTerms, true);
                     break;
                 case 'authorsStringShort':
                     $output[$prop] = $this->anonymize ? '' : $publication->getShortAuthorString();
