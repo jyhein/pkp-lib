@@ -18,7 +18,6 @@ use APP\facades\Repo;
 use APP\publication\Publication;
 use APP\submission\Submission;
 use Illuminate\Support\Enumerable;
-use Illuminate\Support\LazyCollection;
 use PKP\citation\CitationDAO;
 use PKP\context\Context;
 use PKP\db\DAORegistry;
