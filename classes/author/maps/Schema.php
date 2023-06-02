@@ -14,28 +14,23 @@
 namespace PKP\author\maps;
 
 use APP\author\Author;
-use APP\facades\Repo;
 use Illuminate\Support\Enumerable;
-use Illuminate\Support\LazyCollection;
 use PKP\core\PKPRequest;
-use PKP\security\Role;
 use PKP\services\PKPSchemaService;
-use PKP\userGroup\UserGroup;
 use stdClass;
 
 class Schema extends \PKP\core\maps\Schema
 {
     public Enumerable $collection;
 
-    public string $schema = PKPSchemaService::SCHEMA_AUTHOR;
+    public array $contributorRoleTerms;
 
-    protected LazyCollection $authorUserGroups;
+    public string $schema = PKPSchemaService::SCHEMA_AUTHOR;
 
     public function __construct(PKPRequest $request, \PKP\context\Context $context, PKPSchemaService $schemaService)
     {
         parent::__construct($request, $context, $schemaService);
-
-        $this->authorUserGroups = Repo::userGroup()->getByRoleIds([Role::ROLE_ID_AUTHOR], $this->context->getId());
+        $this->contributorRoleTerms = \PKP\components\forms\publication\ContributorForm::getContributorRoleTerms();
     }
 
     /**
@@ -55,7 +50,6 @@ class Schema extends \PKP\core\maps\Schema
      */
     public function summarize(Author $item): array
     {
-        $__aa = $this->getSummaryProps();
         return $this->mapByProperties($this->getSummaryProps(), $item);
     }
 
@@ -93,15 +87,14 @@ class Schema extends \PKP\core\maps\Schema
         $output = [];
         foreach ($props as $prop) {
             switch ($prop) {
-                case 'userGroupName':
-                    /** @var UserGroup $userGroup */
-                    $userGroup = $this->authorUserGroups->first(fn (UserGroup $userGroup) => $userGroup->getId() === $item->getData('userGroupId'));
-                    $output[$prop] = $userGroup ? $userGroup->getName(null) : new stdClass();
-                    break;
                 case 'fullName':
                     $output[$prop] = $item->getFullName();
                     break;
-                case 'creditRoles' || 'contributorRoles':
+                case 'contributorRoles':
+                    $auris = $item->getData($prop) ?? [];
+                    $output[$prop] = array_filter($this->contributorRoleTerms, fn ($uri) => in_array($uri, $auris), ARRAY_FILTER_USE_KEY);
+                    break;
+                case 'creditRoles':
                     $output[$prop] = $item->getData($prop) ?? [];
                     break;
                 default:

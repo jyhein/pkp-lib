@@ -62,6 +62,7 @@ class ContributorsListPanel extends ListPanel
             $config,
             [
                 'canEditPublication' => $this->canEditPublication,
+                'contributorRolesPropName' => 'contributorRoles',
                 'publicationApiUrlFormat' => $this->getPublicationUrlFormat(),
                 'form' => $this->getLocalizedForm(),
                 'items' => $this->items,

@@ -53,7 +53,7 @@
                     class="submissionWizard__reviewPanel__list__name"
                 >
                     {{ getAuthorName(author) }}
-                    <badge v-for="uri in author.contributorRoles" :key="uri">{{ contributorRoleTerms[uri] }}</badge>
+                    <badge v-for="term in author.contributorRoles" :key="term">{{ term }}</badge>
                 </span>
                 <span
                     class="submissionWizard__reviewPanel__list__actions"

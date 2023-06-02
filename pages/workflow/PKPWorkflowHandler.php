@@ -273,10 +273,8 @@ abstract class PKPWorkflowHandler extends Handler
         $titleAbstractForm = $this->getTitleAbstractForm($latestPublicationApiUrl, $locales, $latestPublication, $submissionContext);
 
         $authorItems = [];
-        $contributorRoleTerms = \PKP\components\forms\publication\ContributorForm::getContributorRoleTerms();
         foreach ($latestPublication->getData('authors') as $contributor) {
             $authorItem = Repo::author()->getSchemaMap()->map($contributor);
-            $authorItem['contributorRoles'] = array_map(fn ($uri) => $contributorRoleTerms[$uri], $authorItem['contributorRoles']);
             $authorItems[] = $authorItem;
         }
 

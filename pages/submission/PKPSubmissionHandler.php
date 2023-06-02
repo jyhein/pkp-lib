@@ -222,7 +222,6 @@ abstract class PKPSubmissionHandler extends Handler
                 $contributorsListPanel->id => $contributorsListPanel->getConfig(),
                 $reconfigureSubmissionForm->id => $reconfigureSubmissionForm->getConfig(),
             ],
-            'contributorRoleTerms' => \PKP\components\forms\publication\ContributorForm::getContributorRoleTerms(),
             'i18nConfirmSubmit' => $this->getConfirmSubmitMessage($submission, $context),
             'i18nDiscardChanges' => __('common.discardChanges'),
             'i18nDisconnected' => __('common.disconnected'),

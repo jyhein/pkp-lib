@@ -278,12 +278,9 @@ abstract class PKPAuthorDashboardHandler extends Handler
         }
 
         $authorItems = [];
-        $contributorRoleTerms = \PKP\components\forms\publication\ContributorForm::getContributorRoleTerms();
         foreach ($latestPublication->getData('authors') as $contributor) {
             $authorItem = Repo::author()->getSchemaMap()->map($contributor);
-            $authorItem['contributorRoles'] = array_map(fn ($uri) => $contributorRoleTerms[$uri], $authorItem['contributorRoles']);
             $authorItems[] = $authorItem;
-
         }
 
         $contributorsListPanel = $this->getContributorsListPanel(
