@@ -20,7 +20,6 @@ use APP\statistics\StatisticsHelper;
 use Exception;
 use Illuminate\Database\MySqlConnection;
 use Illuminate\Database\PostgresConnection;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use PKP\db\DAORegistry;
@@ -54,6 +53,8 @@ abstract class PreflightCheckMigration extends \PKP\migration\Migration
                 throw new Exception("There are one or more log files that were unable to finish processing. This happens when the scheduled task to process usage stats logs encounters a failure of some kind. These logs must be repaired and reprocessed or removed before the upgrade can continue. The logs can be found in the folders reject, processing and stage in {$usageStatsDir}.");
             }
 
+            // It's needed to clear the duplicated settings before looking for duplicated localized data to avoid false positives
+            $this->clearDuplicatedUserSettings();
             // email_templates_default_data keys should not conflict after locale migration
             // See MergeLocalesMigration (#8598)
             $affectedLocales = MergeLocalesMigration::getAffectedLocales();
@@ -71,7 +72,7 @@ abstract class PreflightCheckMigration extends \PKP\migration\Migration
 
                 if (!$conflictingEmailKeys->isEmpty()) {
                     foreach ($conflictingEmailKeys as $conflictingEmailKey) {
-                        $exceptionMessage .= 'A row with email_key="' . $conflictingEmailKey->email_key . '" found in table email_templates_default_data which will conflict with other rows specific to the locale key "' . $localeCode . '" after the migration. Please review this row before upgrading. Consider keeping only the ' . $defaultLocale . ' locale in the installation' . PHP_EOL;
+                        $exceptionMessage .= 'A row with email_key="' . $conflictingEmailKey->email_key . '" found in table email_templates_default_data which will conflict with other rows specific to the locale key "' . $localeTarget . '" after the migration. Please review this row before upgrading. Consider keeping only the ' . $localeSource . ' locale in the installation' . PHP_EOL;
                     }
                 }
             }
@@ -105,7 +106,7 @@ abstract class PreflightCheckMigration extends \PKP\migration\Migration
 
                     if (!$conflictingSettings->isEmpty()) {
                         foreach ($conflictingSettings as $conflictingSetting) {
-                            $settingsExceptionMessage .= 'A row with "' . $entityIdColumnName . '"="' . $conflictingSetting->{$entityIdColumnName} . '" and "setting_name"="' . $conflictingSetting->setting_name . '" found in table "' . $tableName . '" which will conflict with other rows specific to the locale key "' . $localeCode . '" after the migration. Please review this row before upgrading.' . PHP_EOL;
+                            $settingsExceptionMessage .= 'A row with "' . $entityIdColumnName . '"="' . $conflictingSetting->{$entityIdColumnName} . '" and "setting_name"="' . $conflictingSetting->setting_name . '" found in table "' . $tableName . '" which will conflict with other rows specific to the locale key "' . $localeTarget . '" after the migration. Please review this row before upgrading.' . PHP_EOL;
                         }
                     }
                 }
@@ -651,11 +652,21 @@ abstract class PreflightCheckMigration extends \PKP\migration\Migration
             // See I7191_SubmissionChecklistMigration
             DB::table($this->getContextSettingsTable())
                 ->where('setting_name', 'submissionChecklist')
-                ->pluck('setting_value')
-                ->each(function ($value) {
-                    if (!isValidJson($value)) {
-                        throw new Exception('A row with setting_name="submissionChecklist" found in table ' . $this->getContextSettingsTable() . " without the expected setting_value. Expected an array encoded in JSON but found:\n\n" . $value . "\n\nFix or remove this row before upgrading.");
+                ->get(['setting_name', 'setting_value', 'locale', $this->getContextKeyField()])
+                ->each(function ($row) {
+                    if (isValidJson($row->setting_value)) {
+                        return;
                     }
+                    // Attempts to fix the JSON (see https://github.com/pkp/pkp-lib/issues/8929#issuecomment-1519867805) before failing the upgrade
+                    $fixedValue = "[{$row->setting_value}]";
+                    if (!isValidJson($fixedValue)) {
+                        throw new Exception('A row with setting_name="submissionChecklist" found in table ' . $this->getContextSettingsTable() . " without the expected setting_value. Expected an array encoded in JSON but found:\n\n{$row->setting_value}\n\nFix or remove this row before upgrading.");
+                    }
+                    DB::table($this->getContextSettingsTable())
+                        ->where('setting_name', $row->setting_name)
+                        ->where('locale', $row->locale)
+                        ->where($this->getContextKeyField(), $row->{$this->getContextKeyField()})
+                        ->update(['setting_value' => $fixedValue]);
                 });
 
             // Check if database engine supports foreign key constraints, see pkp/pkp-lib#6732
@@ -748,6 +759,76 @@ abstract class PreflightCheckMigration extends \PKP\migration\Migration
                 'Contact name or email is missing for context(s) with path(s) [%s]. Please set those before upgrading.',
                 $missingContactContexts->pluck('path')->implode(',')
             )
+        );
+    }
+
+    /**
+     * Clears duplicated user_settings
+     * This method used to be a migration, it has been incorporated at the pre-flight to avoid issues with the checks introduced by the MergeLocalesMigration
+     * Given that it operates on duplicated entries, it should be ok to run it several times
+     * @see https://github.com/pkp/pkp-lib/issues/7167
+     */
+    protected function clearDuplicatedUserSettings(): void
+    {
+        // Locates and removes duplicated user_settings
+        // The latest code stores settings using assoc_id = 0 and assoc_type = 0. Which means entries using null or anything else are outdated.
+        // Note: Old versions (e.g. OJS <= 2.x) made use of these fields to store some settings, but they have been removed years ago, which means they are safe to be discarded.
+        if (DB::connection() instanceof PostgresConnection) {
+            DB::unprepared(
+                "DELETE FROM user_settings s
+                USING user_settings duplicated
+                -- Attempts to find a better fitting record among the duplicates (preference is given to the smaller assoc_id/assoc_type values)
+                LEFT JOIN user_settings best
+                    ON best.setting_name = duplicated.setting_name
+                    AND best.user_id = duplicated.user_id
+                    AND best.locale = duplicated.locale
+                    AND (
+                        COALESCE(best.assoc_id, 999999) < COALESCE(duplicated.assoc_id, 999999)
+                        OR (
+                            COALESCE(best.assoc_id, 999999) = COALESCE(duplicated.assoc_id, 999999)
+                            AND COALESCE(best.assoc_type, 999999) < COALESCE(duplicated.assoc_type, 999999)
+                        )
+                    )
+                -- Locates all duplicated settings (same key fields, except the assoc_type/assoc_id)
+                WHERE s.setting_name = duplicated.setting_name
+                    AND s.user_id = duplicated.user_id
+                    AND s.locale = duplicated.locale
+                    AND (
+                        COALESCE(s.assoc_type, -999999) <> COALESCE(duplicated.assoc_type, -999999)
+                        OR COALESCE(s.assoc_id, -999999) <> COALESCE(duplicated.assoc_id, -999999)
+                    )
+                    -- Ensures a better record was found (if not found, it means the current duplicated record is the best and shouldn't be removed)
+                    AND best.user_id IS NOT NULL"
+            );
+            return;
+        }
+
+        DB::unprepared(
+            "DELETE s
+            FROM user_settings s
+            -- Locates all duplicated settings (same key fields, except the assoc_type/assoc_id)
+            INNER JOIN user_settings duplicated
+                ON s.setting_name = duplicated.setting_name
+                AND s.user_id = duplicated.user_id
+                AND s.locale = duplicated.locale
+                AND (
+                    COALESCE(s.assoc_type, -999999) <> COALESCE(duplicated.assoc_type, -999999)
+                    OR COALESCE(s.assoc_id, -999999) <> COALESCE(duplicated.assoc_id, -999999)
+                )
+            -- Attempts to find a better fitting record among the duplicates (preference is given to the smaller assoc_id/assoc_type values)
+            LEFT JOIN user_settings best
+                ON best.setting_name = duplicated.setting_name
+                AND best.user_id = duplicated.user_id
+                AND best.locale = duplicated.locale
+                AND (
+                    COALESCE(best.assoc_id, 999999) < COALESCE(duplicated.assoc_id, 999999)
+                    OR (
+                        COALESCE(best.assoc_id, 999999) = COALESCE(duplicated.assoc_id, 999999)
+                        AND COALESCE(best.assoc_type, 999999) < COALESCE(duplicated.assoc_type, 999999)
+                    )
+                )
+            -- Ensures a better record was found (if not found, it means the current duplicated record is the best and shouldn't be removed)
+            WHERE best.user_id IS NOT NULL"
         );
     }
 }
