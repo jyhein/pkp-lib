@@ -125,7 +125,7 @@ class PKPAuthorForm extends Form
         $author = $this->getAuthor();
 
         if ($author) {
-            $contributorRoleTerms = \PKP\components\forms\publication\ContributorForm::getContributorRoleTerms();
+            $contributorRoleTerms = \PKP\author\Author::getContributorRoleTerms();
             $this->_data = [
                 'authorId' => $author->getId(),
                 'givenName' => $author->getGivenName(null),
@@ -140,7 +140,7 @@ class PKPAuthorForm extends Form
                 'biography' => $author->getBiography(null),
                 'primaryContact' => $this->getPublication()->getData('primaryContactId') === $author->getId(),
                 'includeInBrowse' => $author->getIncludeInBrowse(),
-                'contributorRoles' => array_map(fn ($uri) => $contributorRoleTerms[$uri], $author->getData('contributorRoles') ?? []),
+                'contributorRoles' => array_map(fn ($uri) => $contributorRoleTerms[$uri], $author->getContributorRoles()),
             ];
         } else {
             // assume authors should be listed unless otherwise specified.
@@ -233,7 +233,7 @@ class PKPAuthorForm extends Form
         $author->setUserGroupId($this->getData('userGroupId'));
         $author->setBiography($this->getData('biography'), null); // localized
         $author->setIncludeInBrowse(($this->getData('includeInBrowse') ? true : false));
-        $author->setData('contributorRoles', $this->getData('contributorRoles'));
+        $author->setData('contributorRoles', $this->getContributorRoles());
 
         // in order to be able to use the hook
         parent::execute(...$functionParams);

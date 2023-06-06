@@ -30,7 +30,7 @@ class Schema extends \PKP\core\maps\Schema
     public function __construct(PKPRequest $request, \PKP\context\Context $context, PKPSchemaService $schemaService)
     {
         parent::__construct($request, $context, $schemaService);
-        $this->contributorRoleTerms = \PKP\components\forms\publication\ContributorForm::getContributorRoleTerms();
+        $this->contributorRoleTerms = \PKP\author\Author::getContributorRoleTerms();
     }
 
     /**

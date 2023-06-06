@@ -18,6 +18,8 @@
 
 namespace PKP\author;
 
+use \DOMDocument;
+
 use APP\facades\Repo;
 use PKP\facades\Locale;
 use PKP\identity\Identity;
@@ -256,6 +258,21 @@ class Author extends Identity
     }
 
     /**
+     * Get the user group for this contributor.
+     *
+     * @return \PKP\userGroup\UserGroup
+     */
+    public function getUserGroup()
+    {
+        //FIXME: should this be queried when fetching Author from DB? - see #5231.
+        static $userGroup; // Frequently we'll fetch the same one repeatedly
+        if (!$userGroup || $this->getUserGroupId() != $userGroup->getId()) {
+            $userGroup = Repo::userGroup()->get($this->getUserGroupId());
+        }
+        return $userGroup;
+    }
+
+    /**
      * Get a localized version of the User Group
      *
      * @return string
@@ -264,5 +281,61 @@ class Author extends Identity
     {
         $userGroup = $this->getUserGroup();
         return $userGroup->getLocalizedName();
+    }
+
+    /**
+     * Get contrubutor roles
+     *
+     * @return array
+     */
+    public function getContributorRoles()
+    {
+        return $this->getData('contributorRoles') ?? [];
+    }
+
+    /**
+     * Get contributor role terms
+     */
+    public static function getContributorRoleTerms($locale = null) {
+        return self::getTypeRoleTerms('contributor-roles', $locale);
+    }
+
+    /**
+     * Get credit role terms
+     */
+    public static function getCreditRoleTerms($locale = null) {
+        return self::getTypeRoleTerms('credit-roles', $locale);
+    }
+
+    /**
+     * Type of roles in an associative URI => Term array
+     * @param $typeRoles The type of roles (the name of the xml file), e.g. contributor-roles, credit-roles
+     * @param $locale The locale for which to fetch the data (default primary locale; en if not available)
+     */
+    protected static function getTypeRoleTerms($typeRoles, $locale = null): array
+    {
+        $doc = new DOMDocument();
+
+        if (!$locale) {
+            $locale = \PKP\facades\Locale::getPrimaryLocale();
+        }
+
+        if (!\PKP\facades\Locale::isLocaleValid($locale)) {
+            $locale = 'en';
+        }
+
+        if (file_exists($filename = "lib/pkp/xml/schema/$typeRoles-{$locale}.xml")) {
+            $doc->load($filename);
+        } else {
+            $doc->load("lib/pkp/xml/schema/{$typeRoles}.xml");
+        }
+
+        $roles = [];
+        foreach ($doc->getElementsByTagName($typeRoles) as $troles) {
+            foreach ($troles->getElementsByTagName('item') as $item) {
+                $roles[$item->getAttribute('uri')] = $item->getAttribute('term');
+            }
+        }
+        return $roles;
     }
 }

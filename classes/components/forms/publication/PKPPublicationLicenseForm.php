@@ -44,7 +44,7 @@ class PKPPublicationLicenseForm extends FormComponent
 
         // Get the copyright that will be set on publication based on context settings
         if ($context->getData('copyrightHolderType') === 'author') {
-            $copyright = $publication->getAuthorString(\PKP\components\forms\publication\ContributorForm::getContributorRoleTerms());
+            $copyright = $publication->getAuthorString(\PKP\author\Author::getContributorRoleTerms());
         } elseif ($context->getData('copyrightHolderType') === 'other') {
             $copyright = $context->getLocalizedData('copyrightHolderOther');
         } else {

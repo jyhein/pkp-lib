@@ -34,7 +34,7 @@
 				"validation": [
 					"url"
 				]
-            },
+			},
 			"validation": [
 				"min:1"
 			],
@@ -58,11 +58,11 @@
 				"validation": [
 					"url"
 				]
-            },
+			},
 			"validation": [
 				"nullable"
 			]
-        },
+		},
 		"email": {
 			"type": "string",
 			"apiSummary": true,

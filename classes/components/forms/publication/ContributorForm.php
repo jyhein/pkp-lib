@@ -15,8 +15,6 @@
 
 namespace PKP\components\forms\publication;
 
-use \DOMDocument;
-
 use APP\facades\Repo;
 use APP\submission\Submission;
 use PKP\components\forms\FieldOptions;
@@ -115,7 +113,7 @@ class ContributorForm extends FormComponent
             'type' => 'checkbox',
             'label' => __('submission.submit.contributorRoles.label'),
             'description' => __('submission.submit.contributorRoles.description'),
-            'options' => $this->getTypeRolesOptions('contributor-roles'),
+            'options' => $this->getTypeRolesOptions(\PKP\author\Author::getContributorRoleTerms()),
             'value' => [],
             'isRequired' => true,
         ]));
@@ -133,60 +131,20 @@ class ContributorForm extends FormComponent
             'type' => 'checkbox',
             'label' => __('submission.submit.creditRoles.label'),
             'description' => __('submission.submit.creditRoles.description'),
-            'options' => $this->getTypeRolesOptions('credit-roles'),
+            'options' => $this->getTypeRolesOptions(\PKP\author\Author::getCreditRoleTerms()),
             'value' => [],
         ]));
     }
 
-    public static function getContributorRoleTerms($locale = null) {
-        return self::getTypeRoleTerms('contributor-roles', $locale);
-    }
-
-    public static function getCreditRoleTerms($locale = null) {
-        return self::getTypeRoleTerms('credit-roles', $locale);
-    }
-
     /**
      * Get roles to the contributor form
-     * @param $locale The locale for which to fetch the data
+     * @param array $typeRoles, list of roles: URI => term
      */
-    protected function getTypeRolesOptions($typeRoles, $locale = null): array
+    protected function getTypeRolesOptions(array $typeRoles): array
     {
         $roles = [];
-        foreach (self::getTypeRoleTerms($typeRoles, $locale) as $uri => $label) {
+        foreach ($typeRoles as $uri => $label) {
             $roles[] = ['value' => $uri, 'label' => $label];
-        }
-        return $roles;
-    }
-
-    /**
-     * Type of roles in an associative URI => Term array
-     * @param $typeRoles The type of roles (the name of the xml file), e.g. contributor-roles, credit-roles
-     * @param $locale The locale for which to fetch the data (default primary locale; en if not available)
-     */
-    protected static function getTypeRoleTerms($typeRoles, $locale = null): array
-    {
-        $doc = new DOMDocument();
-
-        if (!$locale) {
-            $locale = \PKP\facades\Locale::getPrimaryLocale();
-        }
-
-        if (!\PKP\facades\Locale::isLocaleValid($locale)) {
-            $locale = 'en';
-        }
-
-        if (file_exists($filename = "lib/pkp/xml/schema/$typeRoles-{$locale}.xml")) {
-            $doc->load($filename);
-        } else {
-            $doc->load("lib/pkp/xml/schema/{$typeRoles}.xml");
-        }
-
-        $roles = [];
-        foreach ($doc->getElementsByTagName($typeRoles) as $troles) {
-            foreach ($troles->getElementsByTagName('item') as $item) {
-                $roles[$item->getAttribute('uri')] = $item->getAttribute('term');
-            }
         }
         return $roles;
     }

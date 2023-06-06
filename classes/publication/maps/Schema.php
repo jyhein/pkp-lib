@@ -102,7 +102,7 @@ class Schema extends \PKP\core\maps\Schema
         $this->anonymize = $anonymize;
 
         $output = [];
-        $contributorRoleTerms = \PKP\components\forms\publication\ContributorForm::getContributorRoleTerms();
+        $contributorRoleTerms = \PKP\author\Author::getContributorRoleTerms();
 
         foreach ($props as $prop) {
             switch ($prop) {

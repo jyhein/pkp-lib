@@ -227,7 +227,7 @@ class PKPPublication extends \PKP\core\DataObject
             });
         }
 
-        $authorsRoles = $authors->mapWithKeys(fn ($author) => [$author->getFullName() => $author->getData('contributorRoles') ?? []]);
+        $authorsRoles = $authors->mapWithKeys(fn ($author) => [$author->getFullName() => $author->getContributorRoles()]);
         return collect($contributorRoleTerms)->mapWithKeys(fn ($term, $uri) => [$term => $authorsRoles->filter(fn ($auris, $name) => in_array($uri, $auris))->keys()->all()])
             ->filter()
             ->map(fn ($names, $term) => implode(__('common.commaListSeparator'), $names) . " ({$term})")
