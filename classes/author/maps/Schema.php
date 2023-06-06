@@ -91,7 +91,7 @@ class Schema extends \PKP\core\maps\Schema
                     $output[$prop] = $item->getFullName();
                     break;
                 case 'contributorRoles':
-                    $auris = $item->getData($prop) ?? [];
+                    $auris = $item->getData($prop);
                     $output[$prop] = array_filter($this->contributorRoleTerms, fn ($uri) => in_array($uri, $auris), ARRAY_FILTER_USE_KEY);
                     break;
                 case 'creditRoles':

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <contributor-roles>
-    <item term="Author" normalized-term="author" uri="http://contributor-roles.pkp/conceptualization/"/>
-    <item term="Reviewer" normalized-term="reviewer" uri="http://contributor-roles.pkp/data-curation/"/>
-    <item term="Chapter Author" normalized-term="chapterauthor" uri="http://contributor-roles.pkp/formal-analysis/"/>
-    <item term="Translator" normalized-term="translator" uri="http://contributor-roles.pkp/funding-acquisition/"/>
-    <item term="Editor" normalized-term="editor" uri="http://contributor-roles.pkp/investigation/"/>
+    <item term="Author" normalized-term="author" uri="http://contributor-roles.pkp/author/"/>
+    <item term="Reviewer" normalized-term="reviewer" uri="http://contributor-roles.pkp/reviewer/"/>
+    <item term="Chapter Author" normalized-term="chapterauthor" uri="http://contributor-roles.pkp/chapterauthor/"/>
+    <item term="Translator" normalized-term="translator" uri="http://contributor-roles.pkp/translator/"/>
+    <item term="Editor" normalized-term="editor" uri="http://contributor-roles.pkp/editor/"/>
 </contributor-roles>
