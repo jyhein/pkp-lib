@@ -24,8 +24,8 @@ use Illuminate\Support\LazyCollection;
 use PKP\core\EntityDAO;
 use PKP\core\traits\EntityWithParent;
 use PKP\db\DAORegistry;
+use PKP\log\event\EventLogEntry;
 use PKP\log\SubmissionEmailLogDAO;
-use PKP\log\SubmissionEventLogDAO;
 use PKP\note\NoteDAO;
 use PKP\notification\NotificationDAO;
 use PKP\query\QueryDAO;
@@ -178,7 +178,7 @@ class DAO extends EntityDAO
                 $qb->where('s.context_id', '=', (int) $contextId);
             }
 
-            $row = $qb->get(['s.submission_id']);
+            $row = $qb->get(['s.submission_id'])->first();
 
             return $row
                 ? $this->get($row->submission_id)
@@ -297,8 +297,12 @@ class DAO extends EntityDAO
         $notificationDao = DAORegistry::getDAO('NotificationDAO'); /** @var NotificationDAO $notificationDao */
         $notificationDao->deleteByAssoc(Application::ASSOC_TYPE_SUBMISSION, $id);
 
-        $submissionEventLogDao = DAORegistry::getDAO('SubmissionEventLogDAO'); /** @var SubmissionEventLogDAO $submissionEventLogDao */
-        $submissionEventLogDao->deleteByAssoc(Application::ASSOC_TYPE_SUBMISSION, $id);
+        Repo::eventLog()->getCollector()
+            ->filterByAssoc(Application::ASSOC_TYPE_SUBMISSION, [$id])
+            ->getMany()
+            ->each(function (EventLogEntry $logEntry) {
+                Repo::eventLog()->delete($logEntry);
+            });
 
         $submissionEmailLogDao = DAORegistry::getDAO('SubmissionEmailLogDAO'); /** @var SubmissionEmailLogDAO $submissionEmailLogDao */
         $submissionEmailLogDao->deleteByAssoc(Application::ASSOC_TYPE_SUBMISSION, $id);

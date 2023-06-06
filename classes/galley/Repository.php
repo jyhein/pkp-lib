@@ -129,7 +129,7 @@ class Repository
             ]
         );
 
-        // Check required fields if we're adding a context
+        // Check required fields
         ValidatorFactory::required(
             $validator,
             $object,
@@ -158,7 +158,7 @@ class Repository
 
 
         if ($validator->fails()) {
-            $errors = $this->schemaService->formatValidationErrors($validator->errors(), $this->schemaService->get($this->dao->schema), $allowedLocales);
+            $errors = $this->schemaService->formatValidationErrors($validator->errors());
         }
 
         Hook::call('Galley::validate', [&$errors, $object, $props, $allowedLocales, $primaryLocale]);
