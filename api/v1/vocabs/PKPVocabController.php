@@ -23,6 +23,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Route;
+use PKP\controlledVocab\ControlledVocabEntry;
 use PKP\core\PKPBaseController;
 use PKP\core\PKPRequest;
 use PKP\db\DAORegistry;
@@ -137,10 +138,16 @@ class PKPVocabController extends PKPBaseController
 
         $data = [];
         foreach ($entries as $entry) {
-            $data[] = $entry->getData($vocab, $locale);
+            $data[] = $entry->getEntryData($vocab, $locale);
         }
 
-        $data = array_values(array_unique($data));
+        $data = collect($data)
+            ->filter()
+            ->unique(fn (array $item) => $item[$locale][ControlledVocabEntry::CONTROLLED_VOCAB_ENTRY_TERM].($item[$locale][ControlledVocabEntry::CONTROLLED_VOCAB_ENTRY_URI] ?? ""))
+            ->values()
+            ->toArray();
+
+        Hook::call('API::vocabs::external', [$vocab, $term, $locale, &$data, &$entries, $illuminateRequest, response(), $request]);
 
         return response()->json($data, Response::HTTP_OK);
     }

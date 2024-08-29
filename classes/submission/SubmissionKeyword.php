@@ -18,7 +18,11 @@
 
 namespace PKP\submission;
 
-class SubmissionKeyword extends \PKP\controlledVocab\ControlledVocabEntry
+use Illuminate\Support\Facades\DB;
+use PKP\controlledVocab\ControlledVocabEntry;
+use SubmissionKeywordDAO;
+
+class SubmissionKeyword extends ControlledVocabEntry
 {
     //
     // Get/set methods
@@ -35,6 +39,26 @@ class SubmissionKeyword extends \PKP\controlledVocab\ControlledVocabEntry
     }
 
     /**
+     * Get the keyword's label
+     *
+     * @return string|null
+     */
+    public function getLabel(): ?array
+    {
+        return $this->getData('submissionKeywordLabel');
+    }
+
+    /**
+     * Get the keyword's uri
+     *
+     * @return string|null
+     */
+    public function getUri(): ?string
+    {
+        return $this->getData('submissionKeywordUri');
+    }
+
+    /**
      * Set the keyword text
      *
      * @param string $keyword
@@ -45,9 +69,41 @@ class SubmissionKeyword extends \PKP\controlledVocab\ControlledVocabEntry
         $this->setData('submissionKeyword', $keyword, $locale);
     }
 
+    /**
+     * Set the keyword's label
+     */
+    public function setLabel(string $label, string $locale): void
+    {
+        $this->setData('submissionKeywordLabel', $label, $locale);
+    }
+
+    /**
+     * Set the keyword's uri
+     */
+    public function setUri(string $uri): void
+    {
+        $this->setData('submissionKeywordUri', $uri, '');
+    }
+
     public function getLocaleMetadataFieldNames(): array
     {
-        return ['submissionKeyword'];
+        return ['submissionKeyword', 'submissionKeywordLabel', 'submissionKeywordUri'];
+    }
+
+    /**
+     * Get entry related data
+     */
+    public function getEntryData(string $vocab = SubmissionKeywordDAO::CONTROLLED_VOCAB_SUBMISSION_KEYWORD): ?array
+    {
+        return parent::getEntryData($vocab);
+    }
+
+    /**
+     * Set keyword related data
+     */
+    public function setEntryData(array $data, string $locale, string $vocab = SubmissionKeywordDAO::CONTROLLED_VOCAB_SUBMISSION_KEYWORD): void
+    {
+        parent::setEntryData($data, $locale, $vocab);
     }
 }
 

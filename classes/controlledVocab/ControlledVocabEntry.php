@@ -20,6 +20,10 @@ namespace PKP\controlledVocab;
 
 class ControlledVocabEntry extends \PKP\core\DataObject
 {
+    public const CONTROLLED_VOCAB_ENTRY_TERM = 'term';
+    public const CONTROLLED_VOCAB_ENTRY_LABEL = 'label';
+    public const CONTROLLED_VOCAB_ENTRY_URI = 'uri';
+
     //
     // Get/set methods
     //
@@ -95,6 +99,37 @@ class ControlledVocabEntry extends \PKP\core\DataObject
     public function setName($name, $locale)
     {
         $this->setData('name', $name, $locale);
+    }
+
+    /**
+     * Get entry related data
+     */
+    public function getEntryData(string $vocab): ?array
+    {
+        $labels = $this->getData($vocab . ucfirst(self::CONTROLLED_VOCAB_ENTRY_LABEL)) ?? [];
+        $uri = $this->getData($vocab . ucfirst(self::CONTROLLED_VOCAB_ENTRY_URI));
+        return collect($this->getData($vocab) ?? [])
+            ->map(fn (string $term, string $l): array =>
+                [
+                    self::CONTROLLED_VOCAB_ENTRY_TERM => $term,
+                    self::CONTROLLED_VOCAB_ENTRY_LABEL => $labels[$l] ?? $term,
+                    self::CONTROLLED_VOCAB_ENTRY_URI => $uri,
+                ])
+            ->toArray() ?: null;
+    }
+
+    /**
+     * Set entry related data
+     */
+    public function setEntryData(array $data, string $locale, string $vocab): void
+    {
+        $this->setData($vocab, $data[self::CONTROLLED_VOCAB_ENTRY_TERM], $locale);
+        if (isset($data[self::CONTROLLED_VOCAB_ENTRY_LABEL])) {
+            $this->setData($vocab . ucfirst(self::CONTROLLED_VOCAB_ENTRY_LABEL), $data[self::CONTROLLED_VOCAB_ENTRY_LABEL], $locale);
+        }
+        if (isset($data[self::CONTROLLED_VOCAB_ENTRY_URI])) {
+            $this->setData($vocab . ucfirst(self::CONTROLLED_VOCAB_ENTRY_URI), $data[self::CONTROLLED_VOCAB_ENTRY_URI], '');
+        }
     }
 }
 
