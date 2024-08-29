@@ -18,14 +18,18 @@
 
 namespace PKP\submission;
 
+use SubmissionKeyword;
 use PKP\controlledVocab\ControlledVocab;
 use PKP\controlledVocab\ControlledVocabDAO;
+use PKP\controlledVocab\ControlledVocabEntry;
 use PKP\core\PKPApplication;
 use PKP\db\DAORegistry;
 
 class SubmissionKeywordDAO extends ControlledVocabDAO
 {
     public const CONTROLLED_VOCAB_SUBMISSION_KEYWORD = 'submissionKeyword';
+    public const CONTROLLED_VOCAB_SUBMISSION_KEYWORD_LABEL = 'submissionKeywordLabel';
+    public const CONTROLLED_VOCAB_SUBMISSION_KEYWORD_URI = 'submissionKeywordUri';
 
     /**
      * Build/fetch and return a controlled vocabulary for keywords.
@@ -46,7 +50,11 @@ class SubmissionKeywordDAO extends ControlledVocabDAO
      */
     public function getLocaleFieldNames(): array
     {
-        return ['submissionKeyword'];
+        return [
+            self::CONTROLLED_VOCAB_SUBMISSION_KEYWORD, 
+            self::CONTROLLED_VOCAB_SUBMISSION_KEYWORD_LABEL,
+            self::CONTROLLED_VOCAB_SUBMISSION_KEYWORD_URI
+        ];
     }
 
     /**
@@ -66,9 +74,9 @@ class SubmissionKeywordDAO extends ControlledVocabDAO
         $submissionKeywordEntryDao = DAORegistry::getDAO('SubmissionKeywordEntryDAO'); /** @var SubmissionKeywordEntryDAO $submissionKeywordEntryDao */
         $submissionKeywords = $submissionKeywordEntryDao->getByControlledVocabId($keywords->getId());
         while ($keywordEntry = $submissionKeywords->next()) {
-            $keyword = $keywordEntry->getKeyword();
-            if ($keyword) {
-                foreach ($keyword as $locale => $value) {
+            $keywordEntryData = $keywordEntry->getEntryData();
+            if ($keywordEntryData) {
+                foreach ($keywordEntryData as $locale => $value) {
                     if (empty($locales) || in_array($locale, $locales)) {
                         if (!array_key_exists($locale, $result)) {
                             $result[$locale] = [];
@@ -118,16 +126,17 @@ class SubmissionKeywordDAO extends ControlledVocabDAO
         if (is_array($keywords)) { // localized, array of arrays
             foreach ($keywords as $locale => $list) {
                 if (is_array($list)) {
-                    $list = array_unique($list); // Remove any duplicate keywords
                     $i = 1;
-                    foreach ($list as $keyword) {
-                        $keywordEntry = $submissionKeywordEntryDao->newDataObject();
-                        $keywordEntry->setControlledVocabId($currentKeywords->getId());
-                        $keywordEntry->setKeyword($keyword, $locale);
-                        $keywordEntry->setSequence($i);
-                        $i++;
-                        $submissionKeywordEntryDao->insertObject($keywordEntry);
-                    }
+                    collect($list)
+                        ->unique(ControlledVocabEntry::CONTROLLED_VOCAB_ENTRY_TERM)
+                        ->each(function (array $keywordEntryData) use ($submissionKeywordEntryDao, $currentKeywords, $locale, $i) {
+                            $keywordEntry = $submissionKeywordEntryDao->newDataObject();
+                            $keywordEntry->setControlledVocabId($currentKeywords->getId());
+                            $keywordEntry->setEntryData($keywordEntryData, $locale);
+                            $keywordEntry->setSequence($i);
+                            $i++;
+                            $submissionKeywordEntryDao->insertObject($keywordEntry);
+                        });
                 }
             }
         }
@@ -146,7 +155,6 @@ class SubmissionKeywordDAO extends ControlledVocabDAO
 
         $existingEntries = $keywordDao->enumerate($currentKeywords->getId(), self::CONTROLLED_VOCAB_SUBMISSION_KEYWORD);
         foreach ($existingEntries as $id => $entry) {
-            $entry = trim($entry);
             $entryObj = $submissionKeywordEntryDao->getById($id);
             $submissionKeywordEntryDao->deleteObjectById($id);
         }
