@@ -138,7 +138,7 @@ class PKPVocabController extends PKPBaseController
 
         $data = [];
         foreach ($entries as $entry) {
-            $data[] = $entry->getEntryData($vocab, $locale);
+            $data[] = $entry->getEntryData($vocab);
         }
 
         $data = collect($data)
