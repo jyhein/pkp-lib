@@ -51,9 +51,9 @@ class SubmissionKeywordDAO extends ControlledVocabDAO
     public function getLocaleFieldNames(): array
     {
         return [
-            self::CONTROLLED_VOCAB_SUBMISSION_KEYWORD, 
+            self::CONTROLLED_VOCAB_SUBMISSION_KEYWORD,
             self::CONTROLLED_VOCAB_SUBMISSION_KEYWORD_LABEL,
-            self::CONTROLLED_VOCAB_SUBMISSION_KEYWORD_URI
+            self::CONTROLLED_VOCAB_SUBMISSION_KEYWORD_URI,
         ];
     }
 

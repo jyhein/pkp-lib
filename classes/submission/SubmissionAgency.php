@@ -18,6 +18,9 @@
 
 namespace PKP\submission;
 
+use PKP\controlledVocab\ControlledVocabEntry;
+use SubmissionAgencyDAO;
+
 class SubmissionAgency extends \PKP\controlledVocab\ControlledVocabEntry
 {
     //
@@ -31,7 +34,27 @@ class SubmissionAgency extends \PKP\controlledVocab\ControlledVocabEntry
      */
     public function getAgency()
     {
-        return $this->getData('submissionAgency');
+        return $this->getData(SubmissionAgencyDAO::CONTROLLED_VOCAB_SUBMISSION_AGENCY);
+    }
+
+    /**
+     * Get the agency's label
+     *
+     * @return string|null
+     */
+    public function getLabel(): ?array
+    {
+        return $this->getData(SubmissionAgencyDAO::CONTROLLED_VOCAB_SUBMISSION_AGENCY_LABEL);
+    }
+
+    /**
+     * Get the agency's uri
+     *
+     * @return string|null
+     */
+    public function getUri(): ?string
+    {
+        return $this->getData(SubmissionAgencyDAO::CONTROLLED_VOCAB_SUBMISSION_AGENCY_URI);
     }
 
     /**
@@ -42,12 +65,48 @@ class SubmissionAgency extends \PKP\controlledVocab\ControlledVocabEntry
      */
     public function setAgency($agency, $locale)
     {
-        $this->setData('submissionAgency', $agency, $locale);
+        $this->setData(SubmissionAgencyDAO::CONTROLLED_VOCAB_SUBMISSION_AGENCY, $agency, $locale);
+    }
+
+    /**
+     * Set the agency's label
+     */
+    public function setLabel(string $label, string $locale): void
+    {
+        $this->setData(SubmissionAgencyDAO::CONTROLLED_VOCAB_SUBMISSION_AGENCY_LABEL, $label, $locale);
+    }
+
+    /**
+     * Set the agency's uri
+     */
+    public function setUri(string $uri): void
+    {
+        $this->setData(SubmissionAgencyDAO::CONTROLLED_VOCAB_SUBMISSION_AGENCY_URI, $uri, '');
     }
 
     public function getLocaleMetadataFieldNames(): array
     {
-        return ['submissionAgency'];
+        return [
+            SubmissionAgencyDAO::CONTROLLED_VOCAB_SUBMISSION_AGENCY,
+            SubmissionAgencyDAO::CONTROLLED_VOCAB_SUBMISSION_AGENCY_LABEL,
+            SubmissionAgencyDAO::CONTROLLED_VOCAB_SUBMISSION_AGENCY_URI,
+        ];
+    }
+
+    /**
+     * Get entry related data
+     */
+    public function getEntryData(string $vocab = SubmissionAgencyDAO::CONTROLLED_VOCAB_SUBMISSION_AGENCY): ?array
+    {
+        return parent::getEntryData($vocab);
+    }
+
+    /**
+     * Set entry related data
+     */
+    public function setEntryData(array $data, string $locale, string $vocab = SubmissionAgencyDAO::CONTROLLED_VOCAB_SUBMISSION_AGENCY): void
+    {
+        parent::setEntryData($data, $locale, $vocab);
     }
 }
 

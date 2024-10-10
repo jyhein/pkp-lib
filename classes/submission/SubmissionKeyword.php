@@ -18,7 +18,6 @@
 
 namespace PKP\submission;
 
-use Illuminate\Support\Facades\DB;
 use PKP\controlledVocab\ControlledVocabEntry;
 use SubmissionKeywordDAO;
 
@@ -35,7 +34,7 @@ class SubmissionKeyword extends ControlledVocabEntry
      */
     public function getKeyword()
     {
-        return $this->getData('submissionKeyword');
+        return $this->getData(SubmissionKeywordDAO::CONTROLLED_VOCAB_SUBMISSION_KEYWORD);
     }
 
     /**
@@ -45,7 +44,7 @@ class SubmissionKeyword extends ControlledVocabEntry
      */
     public function getLabel(): ?array
     {
-        return $this->getData('submissionKeywordLabel');
+        return $this->getData(SubmissionKeywordDAO::CONTROLLED_VOCAB_SUBMISSION_KEYWORD_LABEL);
     }
 
     /**
@@ -55,7 +54,7 @@ class SubmissionKeyword extends ControlledVocabEntry
      */
     public function getUri(): ?string
     {
-        return $this->getData('submissionKeywordUri');
+        return $this->getData(SubmissionKeywordDAO::CONTROLLED_VOCAB_SUBMISSION_KEYWORD_URI);
     }
 
     /**
@@ -66,7 +65,7 @@ class SubmissionKeyword extends ControlledVocabEntry
      */
     public function setKeyword($keyword, $locale)
     {
-        $this->setData('submissionKeyword', $keyword, $locale);
+        $this->setData(SubmissionKeywordDAO::CONTROLLED_VOCAB_SUBMISSION_KEYWORD, $keyword, $locale);
     }
 
     /**
@@ -74,7 +73,7 @@ class SubmissionKeyword extends ControlledVocabEntry
      */
     public function setLabel(string $label, string $locale): void
     {
-        $this->setData('submissionKeywordLabel', $label, $locale);
+        $this->setData(SubmissionKeywordDAO::CONTROLLED_VOCAB_SUBMISSION_KEYWORD_LABEL, $label, $locale);
     }
 
     /**
@@ -82,12 +81,16 @@ class SubmissionKeyword extends ControlledVocabEntry
      */
     public function setUri(string $uri): void
     {
-        $this->setData('submissionKeywordUri', $uri, '');
+        $this->setData(SubmissionKeywordDAO::CONTROLLED_VOCAB_SUBMISSION_KEYWORD_URI, $uri, '');
     }
 
     public function getLocaleMetadataFieldNames(): array
     {
-        return ['submissionKeyword', 'submissionKeywordLabel', 'submissionKeywordUri'];
+        return [
+            SubmissionKeywordDAO::CONTROLLED_VOCAB_SUBMISSION_KEYWORD,
+            SubmissionKeywordDAO::CONTROLLED_VOCAB_SUBMISSION_KEYWORD_LABEL,
+            SubmissionKeywordDAO::CONTROLLED_VOCAB_SUBMISSION_KEYWORD_URI,
+        ];
     }
 
     /**

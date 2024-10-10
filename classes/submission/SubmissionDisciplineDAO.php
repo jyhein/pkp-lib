@@ -21,12 +21,15 @@ namespace PKP\submission;
 
 use PKP\controlledVocab\ControlledVocab;
 use PKP\controlledVocab\ControlledVocabDAO;
+use PKP\controlledVocab\ControlledVocabEntry;
 use PKP\core\PKPApplication;
 use PKP\db\DAORegistry;
 
 class SubmissionDisciplineDAO extends ControlledVocabDAO
 {
     public const CONTROLLED_VOCAB_SUBMISSION_DISCIPLINE = 'submissionDiscipline';
+    public const CONTROLLED_VOCAB_SUBMISSION_DISCIPLINE_LABEL = 'submissionDisciplineLabel';
+    public const CONTROLLED_VOCAB_SUBMISSION_DISCIPLINE_URI = 'submissionDisciplineUri';
 
     /**
      * Build/fetch a publication's discipline controlled vocabulary.
@@ -46,7 +49,11 @@ class SubmissionDisciplineDAO extends ControlledVocabDAO
      */
     public function getLocaleFieldNames(): array
     {
-        return ['submissionDiscipline'];
+        return [
+            self::CONTROLLED_VOCAB_SUBMISSION_DISCIPLINE,
+            self::CONTROLLED_VOCAB_SUBMISSION_DISCIPLINE_LABEL,
+            self::CONTROLLED_VOCAB_SUBMISSION_DISCIPLINE_URI,
+        ];
     }
 
     /**
@@ -66,8 +73,8 @@ class SubmissionDisciplineDAO extends ControlledVocabDAO
         $submissionDisciplineEntryDao = DAORegistry::getDAO('SubmissionDisciplineEntryDAO'); /** @var SubmissionDisciplineEntryDAO $submissionDisciplineEntryDao */
         $submissionDisciplines = $submissionDisciplineEntryDao->getByControlledVocabId($disciplines->getId());
         while ($disciplineEntry = $submissionDisciplines->next()) {
-            $discipline = $disciplineEntry->getDiscipline();
-            foreach ($discipline as $locale => $value) {
+            $disciplineEntryData = $disciplineEntry->getEntryData();
+            foreach ($disciplineEntryData as $locale => $value) {
                 if (empty($locales) || in_array($locale, $locales)) {
                     $result[$locale][] = $value;
                 }
@@ -118,16 +125,17 @@ class SubmissionDisciplineDAO extends ControlledVocabDAO
         if (is_array($disciplines)) { // localized, array of arrays
             foreach ($disciplines as $locale => $list) {
                 if (is_array($list)) {
-                    $list = array_unique($list); // Remove any duplicate keywords
                     $i = 1;
-                    foreach ($list as $discipline) {
-                        $disciplineEntry = $submissionDisciplineEntryDao->newDataObject();
-                        $disciplineEntry->setControlledVocabId($currentDisciplines->getId());
-                        $disciplineEntry->setDiscipline($discipline, $locale);
-                        $disciplineEntry->setSequence($i);
-                        $i++;
-                        $submissionDisciplineEntryDao->insertObject($disciplineEntry);
-                    }
+                    collect($list)
+                        ->unique(ControlledVocabEntry::CONTROLLED_VOCAB_ENTRY_TERM)
+                        ->each(function (array $disciplineEntryData) use ($submissionDisciplineEntryDao, $currentDisciplines, $locale, $i) {
+                            $disciplineEntry = $submissionDisciplineEntryDao->newDataObject();
+                            $disciplineEntry->setControlledVocabId($currentDisciplines->getId());
+                            $disciplineEntry->setEntryData($disciplineEntryData, $locale);
+                            $disciplineEntry->setSequence($i);
+                            $i++;
+                            $submissionDisciplineEntryDao->insertObject($disciplineEntry);
+                        });
                 }
             }
         }

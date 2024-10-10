@@ -18,6 +18,9 @@
 
 namespace PKP\submission;
 
+use PKP\controlledVocab\ControlledVocabEntry;
+use SubmissionSubjectDAO;
+
 class SubmissionSubject extends \PKP\controlledVocab\ControlledVocabEntry
 {
     //
@@ -31,7 +34,27 @@ class SubmissionSubject extends \PKP\controlledVocab\ControlledVocabEntry
      */
     public function getSubject()
     {
-        return $this->getData('submissionSubject');
+        return $this->getData(SubmissionSubjectDAO::CONTROLLED_VOCAB_SUBMISSION_SUBJECT);
+    }
+
+    /**
+     * Get the subject's label
+     *
+     * @return string|null
+     */
+    public function getLabel(): ?array
+    {
+        return $this->getData(SubmissionSubjectDAO::CONTROLLED_VOCAB_SUBMISSION_SUBJECT_LABEL);
+    }
+
+    /**
+     * Get the subject's uri
+     *
+     * @return string|null
+     */
+    public function getUri(): ?string
+    {
+        return $this->getData(SubmissionSubjectDAO::CONTROLLED_VOCAB_SUBMISSION_SUBJECT_URI);
     }
 
     /**
@@ -42,7 +65,23 @@ class SubmissionSubject extends \PKP\controlledVocab\ControlledVocabEntry
      */
     public function setSubject($subject, $locale)
     {
-        $this->setData('submissionSubject', $subject, $locale);
+        $this->setData(SubmissionSubjectDAO::CONTROLLED_VOCAB_SUBMISSION_SUBJECT, $subject, $locale);
+    }
+
+    /**
+     * Set the subject's label
+     */
+    public function setLabel(string $label, string $locale): void
+    {
+        $this->setData(SubmissionSubjectDAO::CONTROLLED_VOCAB_SUBMISSION_SUBJECT_LABEL, $label, $locale);
+    }
+
+    /**
+     * Set the subject's uri
+     */
+    public function setUri(string $uri): void
+    {
+        $this->setData(SubmissionSubjectDAO::CONTROLLED_VOCAB_SUBMISSION_SUBJECT_URI, $uri, '');
     }
 
     /**
@@ -50,7 +89,27 @@ class SubmissionSubject extends \PKP\controlledVocab\ControlledVocabEntry
      */
     public function getLocaleMetadataFieldNames(): array
     {
-        return ['submissionSubject'];
+        return [
+            SubmissionSubjectDAO::CONTROLLED_VOCAB_SUBMISSION_SUBJECT,
+            SubmissionSubjectDAO::CONTROLLED_VOCAB_SUBMISSION_SUBJECT_LABEL,
+            SubmissionSubjectDAO::CONTROLLED_VOCAB_SUBMISSION_SUBJECT_URI,
+        ];
+    }
+
+    /**
+     * Get entry related data
+     */
+    public function getEntryData(string $vocab = SubmissionSubjectDAO::CONTROLLED_VOCAB_SUBMISSION_SUBJECT): ?array
+    {
+        return parent::getEntryData($vocab);
+    }
+
+    /**
+     * Set entry related data
+     */
+    public function setEntryData(array $data, string $locale, string $vocab = SubmissionSubjectDAO::CONTROLLED_VOCAB_SUBMISSION_SUBJECT): void
+    {
+        parent::setEntryData($data, $locale, $vocab);
     }
 }
 

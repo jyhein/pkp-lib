@@ -20,12 +20,15 @@ namespace PKP\submission;
 
 use PKP\controlledVocab\ControlledVocab;
 use PKP\controlledVocab\ControlledVocabDAO;
+use PKP\controlledVocab\ControlledVocabEntry;
 use PKP\core\PKPApplication;
 use PKP\db\DAORegistry;
 
 class SubmissionSubjectDAO extends ControlledVocabDAO
 {
     public const CONTROLLED_VOCAB_SUBMISSION_SUBJECT = 'submissionSubject';
+    public const CONTROLLED_VOCAB_SUBMISSION_SUBJECT_LABEL = 'submissionSubjectLabel';
+    public const CONTROLLED_VOCAB_SUBMISSION_SUBJECT_URI = 'submissionSubjectUri';
 
     /**
      * Build/fetch and return a controlled vocabulary for subjects.
@@ -46,7 +49,11 @@ class SubmissionSubjectDAO extends ControlledVocabDAO
      */
     public function getLocaleFieldNames(): array
     {
-        return ['submissionSubject'];
+        return [
+            self::CONTROLLED_VOCAB_SUBMISSION_SUBJECT,
+            self::CONTROLLED_VOCAB_SUBMISSION_SUBJECT_LABEL,
+            self::CONTROLLED_VOCAB_SUBMISSION_SUBJECT_URI,
+        ];
     }
 
     /**
@@ -67,8 +74,8 @@ class SubmissionSubjectDAO extends ControlledVocabDAO
         $submissionSubjects = $submissionSubjectEntryDao->getByControlledVocabId($subjects->getId());
         /** @var SubmissionSubject */
         foreach ($submissionSubjects->toIterator() as $subjectEntry) {
-            $subject = $subjectEntry->getSubject();
-            foreach ($subject as $locale => $value) {
+            $subjectEntryData = $subjectEntry->getEntryData();
+            foreach ($subjectEntryData as $locale => $value) {
                 if (empty($locales) || in_array($locale, $locales)) {
                     $result[$locale][] = $value;
                 }
@@ -119,16 +126,17 @@ class SubmissionSubjectDAO extends ControlledVocabDAO
         if (is_array($subjects)) { // localized, array of arrays
             foreach ($subjects as $locale => $list) {
                 if (is_array($list)) {
-                    $list = array_unique($list); // Remove any duplicate Subjects
                     $i = 1;
-                    foreach ($list as $subject) {
-                        $subjectEntry = $submissionSubjectEntryDao->newDataObject();
-                        $subjectEntry->setControlledVocabId($currentSubjects->getId());
-                        $subjectEntry->setSubject($subject, $locale);
-                        $subjectEntry->setSequence($i);
-                        $i++;
-                        $submissionSubjectEntryDao->insertObject($subjectEntry);
-                    }
+                    collect($list)
+                        ->unique(ControlledVocabEntry::CONTROLLED_VOCAB_ENTRY_TERM)
+                        ->each(function (array $subjectEntryData) use ($submissionSubjectEntryDao, $currentSubjects, $locale, $i) {
+                            $subjectEntry = $submissionSubjectEntryDao->newDataObject();
+                            $subjectEntry->setControlledVocabId($currentSubjects->getId());
+                            $subjectEntry->setEntryData($subjectEntryData, $locale);
+                            $subjectEntry->setSequence($i);
+                            $i++;
+                            $submissionSubjectEntryDao->insertObject($subjectEntry);
+                        });
                 }
             }
         }

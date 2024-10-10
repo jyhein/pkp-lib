@@ -18,6 +18,9 @@
 
 namespace PKP\submission;
 
+use PKP\controlledVocab\ControlledVocabEntry;
+use SubmissionDisciplineDAO;
+
 class SubmissionDiscipline extends \PKP\controlledVocab\ControlledVocabEntry
 {
     //
@@ -35,6 +38,26 @@ class SubmissionDiscipline extends \PKP\controlledVocab\ControlledVocabEntry
     }
 
     /**
+     * Get the discipline's label
+     *
+     * @return string|null
+     */
+    public function getLabel(): ?array
+    {
+        return $this->getData('submissionDisciplineLabel');
+    }
+
+    /**
+     * Get the discipline's uri
+     *
+     * @return string|null
+     */
+    public function getUri(): ?string
+    {
+        return $this->getData('submissionDisciplineUri');
+    }
+
+    /**
      * Set the discipline text
      *
      * @param string $discipline
@@ -45,9 +68,41 @@ class SubmissionDiscipline extends \PKP\controlledVocab\ControlledVocabEntry
         $this->setData('submissionDiscipline', $discipline, $locale);
     }
 
+    /**
+     * Set the discipline's label
+     */
+    public function setLabel(string $label, string $locale): void
+    {
+        $this->setData('submissionDisciplineLabel', $label, $locale);
+    }
+
+    /**
+     * Set the discipline's uri
+     */
+    public function setUri(string $uri): void
+    {
+        $this->setData('submissionDisciplineUri', $uri, '');
+    }
+
     public function getLocaleMetadataFieldNames(): array
     {
-        return ['submissionDiscipline'];
+        return ['submissionDiscipline', 'submissionDisciplineLabel', 'submissionDisciplineUri'];
+    }
+
+    /**
+     * Get entry related data
+     */
+    public function getEntryData(string $vocab = SubmissionDisciplineDAO::CONTROLLED_VOCAB_SUBMISSION_DISCIPLINE): ?array
+    {
+        return parent::getEntryData($vocab);
+    }
+
+    /**
+     * Set entry related data
+     */
+    public function setEntryData(array $data, string $locale, string $vocab = SubmissionDisciplineDAO::CONTROLLED_VOCAB_SUBMISSION_DISCIPLINE): void
+    {
+        parent::setEntryData($data, $locale, $vocab);
     }
 }
 

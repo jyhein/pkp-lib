@@ -139,11 +139,12 @@ class PKPVocabController extends PKPBaseController
         $data = collect($entries)
             ->map(fn (object $entry): array => $entry->getEntryData($vocab))
             ->filter()
-            ->unique(fn (array $item): string => $item[$locale][ControlledVocabEntry::CONTROLLED_VOCAB_ENTRY_TERM].($item[$locale][ControlledVocabEntry::CONTROLLED_VOCAB_ENTRY_URI] ?? ""))
             ->flatten(1)
+            ->unique(fn (array $item): string => $item[ControlledVocabEntry::CONTROLLED_VOCAB_ENTRY_TERM].($item[ControlledVocabEntry::CONTROLLED_VOCAB_ENTRY_URI] ?? ""))
+            ->values()
             ->toArray();
 
-        Hook::call('API::vocabs::external', [$vocab, $term, $locale, &$data, &$entries, $illuminateRequest, response(), $request]);
+        //Hook::call('API::vocabs::external', [$vocab, $term, $locale, &$data, &$entries, $illuminateRequest, response(), $request]);
 
         return response()->json($data, Response::HTTP_OK);
     }
