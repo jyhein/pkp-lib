@@ -136,12 +136,8 @@ class PKPVocabController extends PKPBaseController
                 Hook::call('API::vocabs::getMany', [$vocab, &$entries, $illuminateRequest, response(), $request]);
         }
 
-        $data = [];
-        foreach ($entries as $entry) {
-            $data[] = $entry->getEntryData($vocab);
-        }
-
-        $data = collect($data)
+        $data = collect($entries)
+            ->map(fn (object $entry) => $entry->getEntryData($vocab))
             ->filter()
             ->unique(fn (array $item) => $item[$locale][ControlledVocabEntry::CONTROLLED_VOCAB_ENTRY_TERM].($item[$locale][ControlledVocabEntry::CONTROLLED_VOCAB_ENTRY_URI] ?? ""))
             ->flatten(1)
