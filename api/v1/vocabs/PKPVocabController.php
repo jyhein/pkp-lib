@@ -137,9 +137,9 @@ class PKPVocabController extends PKPBaseController
         }
 
         $data = collect($entries)
-            ->map(fn (object $entry) => $entry->getEntryData($vocab))
+            ->map(fn (object $entry): array => $entry->getEntryData($vocab))
             ->filter()
-            ->unique(fn (array $item) => $item[$locale][ControlledVocabEntry::CONTROLLED_VOCAB_ENTRY_TERM].($item[$locale][ControlledVocabEntry::CONTROLLED_VOCAB_ENTRY_URI] ?? ""))
+            ->unique(fn (array $item): string => $item[$locale][ControlledVocabEntry::CONTROLLED_VOCAB_ENTRY_TERM].($item[$locale][ControlledVocabEntry::CONTROLLED_VOCAB_ENTRY_URI] ?? ""))
             ->flatten(1)
             ->toArray();
 
