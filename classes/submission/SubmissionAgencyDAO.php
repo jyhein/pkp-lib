@@ -119,7 +119,6 @@ class SubmissionAgencyDAO extends ControlledVocabDAO
             $existingEntries = $agencyDao->enumerate($currentAgencies->getId(), self::CONTROLLED_VOCAB_SUBMISSION_AGENCY);
 
             foreach ($existingEntries as $id => $entry) {
-                $entry = trim($entry);
                 $submissionAgencyEntryDao->deleteObjectById($id);
             }
         }
