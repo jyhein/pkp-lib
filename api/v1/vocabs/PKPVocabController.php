@@ -144,7 +144,7 @@ class PKPVocabController extends PKPBaseController
             ->values()
             ->toArray();
 
-        //Hook::call('API::vocabs::external', [$vocab, $term, $locale, &$data, &$entries, $illuminateRequest, response(), $request]);
+        Hook::call('API::vocabs::external', [$vocab, $term, $locale, &$data, &$entries, $illuminateRequest, response(), $request]);
 
         return response()->json($data, Response::HTTP_OK);
     }

@@ -124,7 +124,7 @@ class ControlledVocabEntry extends \PKP\core\DataObject
     public function setEntryData(array $data, string $locale, string $vocab): void
     {
         $this->setData($vocab, $data[self::CONTROLLED_VOCAB_ENTRY_TERM], $locale);
-        if (isset($data[self::CONTROLLED_VOCAB_ENTRY_LABEL])) {
+        if (isset($data[self::CONTROLLED_VOCAB_ENTRY_LABEL]) && $data[self::CONTROLLED_VOCAB_ENTRY_LABEL] !== $data[self::CONTROLLED_VOCAB_ENTRY_TERM]) {
             $this->setData($vocab . ucfirst(self::CONTROLLED_VOCAB_ENTRY_LABEL), $data[self::CONTROLLED_VOCAB_ENTRY_LABEL], $locale);
         }
         if (isset($data[self::CONTROLLED_VOCAB_ENTRY_URI])) {
