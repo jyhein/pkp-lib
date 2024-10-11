@@ -152,7 +152,7 @@
 							"nullable"
 						]
 					},
-					"uri": {
+					"identifier": {
 						"type": "string",
 						"validation": [
 							"nullable"
@@ -207,7 +207,7 @@
 							"nullable"
 						]
 					},
-					"uri": {
+					"identifier": {
 						"type": "string",
 						"validation": [
 							"nullable"
@@ -300,7 +300,7 @@
 							"nullable"
 						]
 					},
-					"uri": {
+					"identifier": {
 						"type": "string",
 						"validation": [
 							"nullable"
@@ -342,7 +342,7 @@
 							"nullable"
 						]
 					},
-					"uri": {
+					"identifier": {
 						"type": "string",
 						"validation": [
 							"nullable"

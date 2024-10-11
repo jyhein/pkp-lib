@@ -29,7 +29,7 @@ class SubmissionDisciplineDAO extends ControlledVocabDAO
 {
     public const CONTROLLED_VOCAB_SUBMISSION_DISCIPLINE = 'submissionDiscipline';
     public const CONTROLLED_VOCAB_SUBMISSION_DISCIPLINE_LABEL = 'submissionDisciplineLabel';
-    public const CONTROLLED_VOCAB_SUBMISSION_DISCIPLINE_URI = 'submissionDisciplineUri';
+    public const CONTROLLED_VOCAB_SUBMISSION_DISCIPLINE_ID = 'submissionDisciplineIdentifier';
 
     /**
      * Build/fetch a publication's discipline controlled vocabulary.
@@ -52,7 +52,7 @@ class SubmissionDisciplineDAO extends ControlledVocabDAO
         return [
             self::CONTROLLED_VOCAB_SUBMISSION_DISCIPLINE,
             self::CONTROLLED_VOCAB_SUBMISSION_DISCIPLINE_LABEL,
-            self::CONTROLLED_VOCAB_SUBMISSION_DISCIPLINE_URI,
+            self::CONTROLLED_VOCAB_SUBMISSION_DISCIPLINE_ID,
         ];
     }
 

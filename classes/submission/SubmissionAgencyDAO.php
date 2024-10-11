@@ -28,7 +28,7 @@ class SubmissionAgencyDAO extends ControlledVocabDAO
 {
     public const CONTROLLED_VOCAB_SUBMISSION_AGENCY = 'submissionAgency';
     public const CONTROLLED_VOCAB_SUBMISSION_AGENCY_LABEL = 'submissionAgencyLabel';
-    public const CONTROLLED_VOCAB_SUBMISSION_AGENCY_URI = 'submissionAgencyUri';
+    public const CONTROLLED_VOCAB_SUBMISSION_AGENCY_ID = 'submissionAgencyIdentifier';
 
     /**
      * Build/fetch and return a controlled vocabulary for agencies.
@@ -51,7 +51,7 @@ class SubmissionAgencyDAO extends ControlledVocabDAO
         return [
             self::CONTROLLED_VOCAB_SUBMISSION_AGENCY,
             self::CONTROLLED_VOCAB_SUBMISSION_AGENCY_LABEL,
-            self::CONTROLLED_VOCAB_SUBMISSION_AGENCY_URI
+            self::CONTROLLED_VOCAB_SUBMISSION_AGENCY_ID
         ];
     }
 

@@ -28,7 +28,7 @@ class SubmissionSubjectDAO extends ControlledVocabDAO
 {
     public const CONTROLLED_VOCAB_SUBMISSION_SUBJECT = 'submissionSubject';
     public const CONTROLLED_VOCAB_SUBMISSION_SUBJECT_LABEL = 'submissionSubjectLabel';
-    public const CONTROLLED_VOCAB_SUBMISSION_SUBJECT_URI = 'submissionSubjectUri';
+    public const CONTROLLED_VOCAB_SUBMISSION_SUBJECT_ID = 'submissionSubjectIdentifier';
 
     /**
      * Build/fetch and return a controlled vocabulary for subjects.
@@ -52,7 +52,7 @@ class SubmissionSubjectDAO extends ControlledVocabDAO
         return [
             self::CONTROLLED_VOCAB_SUBMISSION_SUBJECT,
             self::CONTROLLED_VOCAB_SUBMISSION_SUBJECT_LABEL,
-            self::CONTROLLED_VOCAB_SUBMISSION_SUBJECT_URI,
+            self::CONTROLLED_VOCAB_SUBMISSION_SUBJECT_ID,
         ];
     }
 

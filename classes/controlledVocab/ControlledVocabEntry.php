@@ -22,7 +22,7 @@ class ControlledVocabEntry extends \PKP\core\DataObject
 {
     public const CONTROLLED_VOCAB_ENTRY_TERM = 'term';
     public const CONTROLLED_VOCAB_ENTRY_LABEL = 'label';
-    public const CONTROLLED_VOCAB_ENTRY_URI = 'uri';
+    public const CONTROLLED_VOCAB_ENTRY_ID = 'identifier';
 
     //
     // Get/set methods
@@ -107,13 +107,13 @@ class ControlledVocabEntry extends \PKP\core\DataObject
     public function getEntryData(string $vocab): ?array
     {
         $labels = $this->getData($vocab . ucfirst(self::CONTROLLED_VOCAB_ENTRY_LABEL)) ?? [];
-        $uri = $this->getData($vocab . ucfirst(self::CONTROLLED_VOCAB_ENTRY_URI));
+        $id = $this->getData($vocab . ucfirst(self::CONTROLLED_VOCAB_ENTRY_ID));
         return collect($this->getData($vocab) ?? [])
             ->map(fn (string $term, string $l): array =>
                 [
                     self::CONTROLLED_VOCAB_ENTRY_TERM => $term,
                     self::CONTROLLED_VOCAB_ENTRY_LABEL => $labels[$l] ?? $term,
-                    self::CONTROLLED_VOCAB_ENTRY_URI => $uri,
+                    self::CONTROLLED_VOCAB_ENTRY_ID => $id,
                 ])
             ->toArray() ?: null;
     }
@@ -127,8 +127,8 @@ class ControlledVocabEntry extends \PKP\core\DataObject
         if (isset($data[self::CONTROLLED_VOCAB_ENTRY_LABEL]) && $data[self::CONTROLLED_VOCAB_ENTRY_LABEL] !== $data[self::CONTROLLED_VOCAB_ENTRY_TERM]) {
             $this->setData($vocab . ucfirst(self::CONTROLLED_VOCAB_ENTRY_LABEL), $data[self::CONTROLLED_VOCAB_ENTRY_LABEL], $locale);
         }
-        if (isset($data[self::CONTROLLED_VOCAB_ENTRY_URI])) {
-            $this->setData($vocab . ucfirst(self::CONTROLLED_VOCAB_ENTRY_URI), $data[self::CONTROLLED_VOCAB_ENTRY_URI], '');
+        if (isset($data[self::CONTROLLED_VOCAB_ENTRY_ID])) {
+            $this->setData($vocab . ucfirst(self::CONTROLLED_VOCAB_ENTRY_ID), $data[self::CONTROLLED_VOCAB_ENTRY_ID], '');
         }
     }
 }

@@ -48,13 +48,13 @@ class SubmissionAgency extends \PKP\controlledVocab\ControlledVocabEntry
     }
 
     /**
-     * Get the agency's uri
+     * Get the agency's identifier
      *
      * @return string|null
      */
-    public function getUri(): ?string
+    public function getIdentifier(): ?string
     {
-        return $this->getData(SubmissionAgencyDAO::CONTROLLED_VOCAB_SUBMISSION_AGENCY_URI);
+        return $this->getData(SubmissionAgencyDAO::CONTROLLED_VOCAB_SUBMISSION_AGENCY_ID);
     }
 
     /**
@@ -77,11 +77,11 @@ class SubmissionAgency extends \PKP\controlledVocab\ControlledVocabEntry
     }
 
     /**
-     * Set the agency's uri
+     * Set the agency's identifier
      */
-    public function setUri(string $uri): void
+    public function setIdentifier(string $id): void
     {
-        $this->setData(SubmissionAgencyDAO::CONTROLLED_VOCAB_SUBMISSION_AGENCY_URI, $uri, '');
+        $this->setData(SubmissionAgencyDAO::CONTROLLED_VOCAB_SUBMISSION_AGENCY_ID, $id, '');
     }
 
     public function getLocaleMetadataFieldNames(): array
@@ -89,7 +89,7 @@ class SubmissionAgency extends \PKP\controlledVocab\ControlledVocabEntry
         return [
             SubmissionAgencyDAO::CONTROLLED_VOCAB_SUBMISSION_AGENCY,
             SubmissionAgencyDAO::CONTROLLED_VOCAB_SUBMISSION_AGENCY_LABEL,
-            SubmissionAgencyDAO::CONTROLLED_VOCAB_SUBMISSION_AGENCY_URI,
+            SubmissionAgencyDAO::CONTROLLED_VOCAB_SUBMISSION_AGENCY_ID,
         ];
     }
 

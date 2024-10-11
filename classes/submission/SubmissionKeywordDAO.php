@@ -29,7 +29,7 @@ class SubmissionKeywordDAO extends ControlledVocabDAO
 {
     public const CONTROLLED_VOCAB_SUBMISSION_KEYWORD = 'submissionKeyword';
     public const CONTROLLED_VOCAB_SUBMISSION_KEYWORD_LABEL = 'submissionKeywordLabel';
-    public const CONTROLLED_VOCAB_SUBMISSION_KEYWORD_URI = 'submissionKeywordUri';
+    public const CONTROLLED_VOCAB_SUBMISSION_KEYWORD_ID = 'submissionKeywordIdentifier';
 
     /**
      * Build/fetch and return a controlled vocabulary for keywords.
@@ -53,7 +53,7 @@ class SubmissionKeywordDAO extends ControlledVocabDAO
         return [
             self::CONTROLLED_VOCAB_SUBMISSION_KEYWORD,
             self::CONTROLLED_VOCAB_SUBMISSION_KEYWORD_LABEL,
-            self::CONTROLLED_VOCAB_SUBMISSION_KEYWORD_URI,
+            self::CONTROLLED_VOCAB_SUBMISSION_KEYWORD_ID,
         ];
     }
 

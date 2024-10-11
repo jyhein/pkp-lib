@@ -48,13 +48,13 @@ class SubmissionSubject extends \PKP\controlledVocab\ControlledVocabEntry
     }
 
     /**
-     * Get the subject's uri
+     * Get the subject's identifier
      *
      * @return string|null
      */
-    public function getUri(): ?string
+    public function getIdentifier(): ?string
     {
-        return $this->getData(SubmissionSubjectDAO::CONTROLLED_VOCAB_SUBMISSION_SUBJECT_URI);
+        return $this->getData(SubmissionSubjectDAO::CONTROLLED_VOCAB_SUBMISSION_SUBJECT_ID);
     }
 
     /**
@@ -77,11 +77,11 @@ class SubmissionSubject extends \PKP\controlledVocab\ControlledVocabEntry
     }
 
     /**
-     * Set the subject's uri
+     * Set the subject's identifier
      */
-    public function setUri(string $uri): void
+    public function setIdentifier(string $id): void
     {
-        $this->setData(SubmissionSubjectDAO::CONTROLLED_VOCAB_SUBMISSION_SUBJECT_URI, $uri, '');
+        $this->setData(SubmissionSubjectDAO::CONTROLLED_VOCAB_SUBMISSION_SUBJECT_ID, $id, '');
     }
 
     /**
@@ -92,7 +92,7 @@ class SubmissionSubject extends \PKP\controlledVocab\ControlledVocabEntry
         return [
             SubmissionSubjectDAO::CONTROLLED_VOCAB_SUBMISSION_SUBJECT,
             SubmissionSubjectDAO::CONTROLLED_VOCAB_SUBMISSION_SUBJECT_LABEL,
-            SubmissionSubjectDAO::CONTROLLED_VOCAB_SUBMISSION_SUBJECT_URI,
+            SubmissionSubjectDAO::CONTROLLED_VOCAB_SUBMISSION_SUBJECT_ID,
         ];
     }
 

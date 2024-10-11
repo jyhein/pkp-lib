@@ -48,13 +48,13 @@ class SubmissionKeyword extends ControlledVocabEntry
     }
 
     /**
-     * Get the keyword's uri
+     * Get the keyword's identifier
      *
      * @return string|null
      */
-    public function getUri(): ?string
+    public function getIdentifier(): ?string
     {
-        return $this->getData(SubmissionKeywordDAO::CONTROLLED_VOCAB_SUBMISSION_KEYWORD_URI);
+        return $this->getData(SubmissionKeywordDAO::CONTROLLED_VOCAB_SUBMISSION_KEYWORD_ID);
     }
 
     /**
@@ -77,11 +77,11 @@ class SubmissionKeyword extends ControlledVocabEntry
     }
 
     /**
-     * Set the keyword's uri
+     * Set the keyword's identifier
      */
-    public function setUri(string $uri): void
+    public function setIdentifier(string $id): void
     {
-        $this->setData(SubmissionKeywordDAO::CONTROLLED_VOCAB_SUBMISSION_KEYWORD_URI, $uri, '');
+        $this->setData(SubmissionKeywordDAO::CONTROLLED_VOCAB_SUBMISSION_KEYWORD_ID, $id, '');
     }
 
     public function getLocaleMetadataFieldNames(): array
@@ -89,7 +89,7 @@ class SubmissionKeyword extends ControlledVocabEntry
         return [
             SubmissionKeywordDAO::CONTROLLED_VOCAB_SUBMISSION_KEYWORD,
             SubmissionKeywordDAO::CONTROLLED_VOCAB_SUBMISSION_KEYWORD_LABEL,
-            SubmissionKeywordDAO::CONTROLLED_VOCAB_SUBMISSION_KEYWORD_URI,
+            SubmissionKeywordDAO::CONTROLLED_VOCAB_SUBMISSION_KEYWORD_ID,
         ];
     }
 
