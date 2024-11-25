@@ -18,6 +18,9 @@
 
 namespace PKP\submission;
 
+use PKP\controlledVocab\ControlledVocabEntry;
+use SubmissionDisciplineDAO;
+
 class SubmissionDiscipline extends \PKP\controlledVocab\ControlledVocabEntry
 {
     //
@@ -31,7 +34,27 @@ class SubmissionDiscipline extends \PKP\controlledVocab\ControlledVocabEntry
      */
     public function getDiscipline()
     {
-        return $this->getData('submissionDiscipline');
+        return $this->getData(SubmissionDisciplineDAO::SubmissionDisciplineDAO::CONTROLLED_VOCAB_SUBMISSION_DISCIPLINE);
+    }
+
+    /**
+     * Get the discipline's label
+     *
+     * @return string|null
+     */
+    public function getLabel(): ?array
+    {
+        return $this->getData(SubmissionDisciplineDAO::CONTROLLED_VOCAB_SUBMISSION_DISCIPLINE_LABEL);
+    }
+
+    /**
+     * Get the discipline's identifier
+     *
+     * @return string|null
+     */
+    public function getIdentifier(): ?string
+    {
+        return $this->getData(SubmissionDisciplineDAO::CONTROLLED_VOCAB_SUBMISSION_DISCIPLINE_ID);
     }
 
     /**
@@ -42,12 +65,48 @@ class SubmissionDiscipline extends \PKP\controlledVocab\ControlledVocabEntry
      */
     public function setDiscipline($discipline, $locale)
     {
-        $this->setData('submissionDiscipline', $discipline, $locale);
+        $this->setData(SubmissionDisciplineDAO::SubmissionDisciplineDAO::CONTROLLED_VOCAB_SUBMISSION_DISCIPLINE, $discipline, $locale);
+    }
+
+    /**
+     * Set the discipline's label
+     */
+    public function setLabel(string $label, string $locale): void
+    {
+        $this->setData(SubmissionDisciplineDAO::CONTROLLED_VOCAB_SUBMISSION_DISCIPLINE_LABEL, $label, $locale);
+    }
+
+    /**
+     * Set the discipline's identifier
+     */
+    public function setIdentifier(string $id): void
+    {
+        $this->setData(SubmissionDisciplineDAO::CONTROLLED_VOCAB_SUBMISSION_DISCIPLINE_ID, $id, '');
     }
 
     public function getLocaleMetadataFieldNames(): array
     {
-        return ['submissionDiscipline'];
+        return [
+            SubmissionDisciplineDAO::CONTROLLED_VOCAB_SUBMISSION_DISCIPLINE,
+            SubmissionDisciplineDAO::CONTROLLED_VOCAB_SUBMISSION_DISCIPLINE_LABEL,
+            SubmissionDisciplineDAO::CONTROLLED_VOCAB_SUBMISSION_DISCIPLINE_ID,
+        ];
+    }
+
+    /**
+     * Get entry related data
+     */
+    public function getEntryData(string $vocab = SubmissionDisciplineDAO::CONTROLLED_VOCAB_SUBMISSION_DISCIPLINE): ?array
+    {
+        return parent::getEntryData($vocab);
+    }
+
+    /**
+     * Set entry related data
+     */
+    public function setEntryData(array $data, string $locale, string $vocab = SubmissionDisciplineDAO::CONTROLLED_VOCAB_SUBMISSION_DISCIPLINE): void
+    {
+        parent::setEntryData($data, $locale, $vocab);
     }
 }
 

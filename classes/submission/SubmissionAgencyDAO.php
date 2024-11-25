@@ -20,12 +20,15 @@ namespace PKP\submission;
 
 use PKP\controlledVocab\ControlledVocab;
 use PKP\controlledVocab\ControlledVocabDAO;
+use PKP\controlledVocab\ControlledVocabEntry;
 use PKP\core\PKPApplication;
 use PKP\db\DAORegistry;
 
 class SubmissionAgencyDAO extends ControlledVocabDAO
 {
     public const CONTROLLED_VOCAB_SUBMISSION_AGENCY = 'submissionAgency';
+    public const CONTROLLED_VOCAB_SUBMISSION_AGENCY_LABEL = 'submissionAgencyLabel';
+    public const CONTROLLED_VOCAB_SUBMISSION_AGENCY_ID = 'submissionAgencyIdentifier';
 
     /**
      * Build/fetch and return a controlled vocabulary for agencies.
@@ -45,7 +48,11 @@ class SubmissionAgencyDAO extends ControlledVocabDAO
      */
     public function getLocaleFieldNames(): array
     {
-        return ['submissionAgency'];
+        return [
+            self::CONTROLLED_VOCAB_SUBMISSION_AGENCY,
+            self::CONTROLLED_VOCAB_SUBMISSION_AGENCY_LABEL,
+            self::CONTROLLED_VOCAB_SUBMISSION_AGENCY_ID
+        ];
     }
 
     /**
@@ -65,10 +72,12 @@ class SubmissionAgencyDAO extends ControlledVocabDAO
         $submissionAgencyEntryDao = DAORegistry::getDAO('SubmissionAgencyEntryDAO'); /** @var SubmissionAgencyEntryDAO $submissionAgencyEntryDao */
         $submissionAgencies = $submissionAgencyEntryDao->getByControlledVocabId($agencies->getId());
         while ($agencyEntry = $submissionAgencies->next()) {
-            $agency = $agencyEntry->getAgency();
-            foreach ($agency as $locale => $value) {
-                if (empty($locales) || in_array($locale, $locales)) {
-                    $result[$locale][] = $value;
+            $agencyEntryData = $agencyEntry->getEntryData();
+            if ($agencyEntryData) {
+                foreach ($agencyEntryData as $locale => $value) {
+                    if (empty($locales) || in_array($locale, $locales)) {
+                        $result[$locale][] = $value;
+                    }
                 }
             }
         }
@@ -110,23 +119,23 @@ class SubmissionAgencyDAO extends ControlledVocabDAO
             $existingEntries = $agencyDao->enumerate($currentAgencies->getId(), self::CONTROLLED_VOCAB_SUBMISSION_AGENCY);
 
             foreach ($existingEntries as $id => $entry) {
-                $entry = trim($entry);
                 $submissionAgencyEntryDao->deleteObjectById($id);
             }
         }
         if (is_array($agencies)) { // localized, array of arrays
             foreach ($agencies as $locale => $list) {
                 if (is_array($list)) {
-                    $list = array_unique($list); // Remove any duplicate keywords
                     $i = 1;
-                    foreach ($list as $agency) {
-                        $agencyEntry = $submissionAgencyEntryDao->newDataObject();
-                        $agencyEntry->setControlledVocabId($currentAgencies->getId());
-                        $agencyEntry->setAgency($agency, $locale);
-                        $agencyEntry->setSequence($i);
-                        $i++;
-                        $submissionAgencyEntryDao->insertObject($agencyEntry);
-                    }
+                    collect($list)
+                        ->unique(ControlledVocabEntry::CONTROLLED_VOCAB_ENTRY_TERM)
+                        ->each(function (array $agencyEntryData) use ($submissionAgencyEntryDao, $currentAgencies, $locale, $i) {
+                            $agencyEntry = $submissionAgencyEntryDao->newDataObject();
+                            $agencyEntry->setControlledVocabId($currentAgencies->getId());
+                            $agencyEntry->setEntryData($agencyEntryData, $locale);
+                            $agencyEntry->setSequence($i);
+                            $i++;
+                            $submissionAgencyEntryDao->insertObject($agencyEntry);
+                        });
                 }
             }
         }

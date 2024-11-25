@@ -18,7 +18,10 @@
 
 namespace PKP\submission;
 
-class SubmissionKeyword extends \PKP\controlledVocab\ControlledVocabEntry
+use PKP\controlledVocab\ControlledVocabEntry;
+use SubmissionKeywordDAO;
+
+class SubmissionKeyword extends ControlledVocabEntry
 {
     //
     // Get/set methods
@@ -31,7 +34,27 @@ class SubmissionKeyword extends \PKP\controlledVocab\ControlledVocabEntry
      */
     public function getKeyword()
     {
-        return $this->getData('submissionKeyword');
+        return $this->getData(SubmissionKeywordDAO::CONTROLLED_VOCAB_SUBMISSION_KEYWORD);
+    }
+
+    /**
+     * Get the keyword's label
+     *
+     * @return string|null
+     */
+    public function getLabel(): ?array
+    {
+        return $this->getData(SubmissionKeywordDAO::CONTROLLED_VOCAB_SUBMISSION_KEYWORD_LABEL);
+    }
+
+    /**
+     * Get the keyword's identifier
+     *
+     * @return string|null
+     */
+    public function getIdentifier(): ?string
+    {
+        return $this->getData(SubmissionKeywordDAO::CONTROLLED_VOCAB_SUBMISSION_KEYWORD_ID);
     }
 
     /**
@@ -42,12 +65,48 @@ class SubmissionKeyword extends \PKP\controlledVocab\ControlledVocabEntry
      */
     public function setKeyword($keyword, $locale)
     {
-        $this->setData('submissionKeyword', $keyword, $locale);
+        $this->setData(SubmissionKeywordDAO::CONTROLLED_VOCAB_SUBMISSION_KEYWORD, $keyword, $locale);
+    }
+
+    /**
+     * Set the keyword's label
+     */
+    public function setLabel(string $label, string $locale): void
+    {
+        $this->setData(SubmissionKeywordDAO::CONTROLLED_VOCAB_SUBMISSION_KEYWORD_LABEL, $label, $locale);
+    }
+
+    /**
+     * Set the keyword's identifier
+     */
+    public function setIdentifier(string $id): void
+    {
+        $this->setData(SubmissionKeywordDAO::CONTROLLED_VOCAB_SUBMISSION_KEYWORD_ID, $id, '');
     }
 
     public function getLocaleMetadataFieldNames(): array
     {
-        return ['submissionKeyword'];
+        return [
+            SubmissionKeywordDAO::CONTROLLED_VOCAB_SUBMISSION_KEYWORD,
+            SubmissionKeywordDAO::CONTROLLED_VOCAB_SUBMISSION_KEYWORD_LABEL,
+            SubmissionKeywordDAO::CONTROLLED_VOCAB_SUBMISSION_KEYWORD_ID,
+        ];
+    }
+
+    /**
+     * Get entry related data
+     */
+    public function getEntryData(string $vocab = SubmissionKeywordDAO::CONTROLLED_VOCAB_SUBMISSION_KEYWORD): ?array
+    {
+        return parent::getEntryData($vocab);
+    }
+
+    /**
+     * Set keyword related data
+     */
+    public function setEntryData(array $data, string $locale, string $vocab = SubmissionKeywordDAO::CONTROLLED_VOCAB_SUBMISSION_KEYWORD): void
+    {
+        parent::setEntryData($data, $locale, $vocab);
     }
 }
 
