@@ -2685,9 +2685,6 @@ class PKPSubmissionController extends PKPBaseController
             });
     }
 
-<<<<<<< HEAD
-    protected function validateVersionStage(Request $illuminateRequest): VersionStage
-=======
     /**
      * Remove irrelevant data based on the selected contributor type
      */
@@ -2715,8 +2712,7 @@ class PKPSubmissionController extends PKPBaseController
             });
     }
 
-    private function validateVersionStage(Request $illuminateRequest): VersionStage
->>>>>>> 114974dd68 (Contributor Roles and Type)
+    protected function validateVersionStage(Request $illuminateRequest): VersionStage
     {
         $validator = Validator::make($illuminateRequest->all(), [
             'versionStage' => [
